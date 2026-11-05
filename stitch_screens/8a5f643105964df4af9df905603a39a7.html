@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "surface-container-highest": "#e3e2e2", "error": "#ba1a1a", "surface": "#fbf9f9", "on-surface": "#1b1c1c", "surface-variant": "#e3e2e2", "surface-container-low": "#f5f3f3", "surface-bright": "#fbf9f9", "on-surface-variant": "#414751", "surface-dim": "#dbdad9", "on-secondary-container": "#003664", "on-primary-fixed": "#001c39", "on-tertiary-container": "#d4e6ff", "outline": "#717783", "surface-tint": "#0060ab", "primary": "#004f8f", "error-container": "#ffdad6", "inverse-on-surface": "#f2f0f0", "primary-container": "#0067b8", "tertiary": "#005088", "on-primary-fixed-variant": "#004883", "surface-container-high": "#e9e8e7", "on-secondary": "#ffffff", "on-error-container": "#93000a", "primary-fixed-dim": "#a3c9ff", "surface-container": "#efeded", "tertiary-container": "#0069b0", "on-secondary-fixed-variant": "#004883", "on-background": "#1b1c1c", "background": "#fbf9f9", "on-primary": "#ffffff", "tertiary-fixed-dim": "#9ecaff", "tertiary-fixed": "#d1e4ff", "on-primary-container": "#d6e5ff", "inverse-surface": "#303031", "on-tertiary-fixed-variant": "#00497d", "secondary-fixed": "#d3e3ff", "primary-fixed": "#d3e3ff", "secondary-container": "#4ca0ff", "inverse-primary": "#a3c9ff", "secondary-fixed-dim": "#a3c9ff", "on-error": "#ffffff", "on-secondary-fixed": "#001c39", "on-tertiary-fixed": "#001d36", "outline-variant": "#c1c7d3", "secondary": "#0060ab" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1rem", "space-sm": "0.5rem", "gutter": "0.75rem" }, "fontFamily": { "body-md": ["Hanken Grotesk"], "headline-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "headline-sm": ["Hanken Grotesk"], "headline-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Hanken Grotesk"], "label-sm": ["Hanken Grotesk"], "code-sm": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "title-md": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"] }, "fontSize": { "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }], "body-lg": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "title-md": ["15px", { "lineHeight": "20px", "fontWeight": "500" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-16 flex items-center justify-between px-margin"><div class="flex items-center gap-space-sm"><button aria-label="Go back" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back</span></button><img alt="Explorer Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UZbDh8UYt_zt8IryxF5eN__7VXcFYe2BC-Y96BnCYnTCrn2ehGgZ9rJNNU14UGYxVyKFHUuSDbouL22dSED6XcUY3n_Or4nNZGaHVjzT6plPnBSFYQJzhVgSKLr3k4sSwo_3-i9h_sdS0A8okWqOp4yjGajiVz7ExHdrk6F7LQZaTMpHeOQP50fIksUWJ9K3qWYwqV3_09TrmHqR2HwtFe4iVt2UtcVmUD1iJcMUnJYlkznrVVk-DZWt8"/><h1 class="font-headline-sm text-headline-sm text-on-surface font-semibold">File Details</h1></div><div class="flex items-center gap-space-sm"><button aria-label="File Properties" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">info</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 bg-surface min-h-screen pb-safe"><div class="flex flex-col w-full relative">
+<!-- Dimmed Simulated Background Filesystem Layer -->
+<div aria-hidden="true" class="w-full px-margin pt-space-md opacity-35 filter blur-[1px] pointer-events-none select-none flex flex-col gap-space-sm">
+<div class="h-9 w-full bg-surface-container-high rounded-lg flex items-center px-space-md gap-space-sm">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">folder</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Documents &gt; Work Projects</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-surface-container-lowest rounded-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">description</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Budget_Forecast_2025.xlsx</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">4.1 MB • Modified Yesterday</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">more_vert</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-primary/10 rounded-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-[#d83b01] flex items-center justify-center text-white font-bold text-xs">P</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-primary font-medium">Q3_Strategic_Roadmap.pptx</span>
+<span class="font-code-sm text-code-sm text-primary/80">14.2 MB • Modified 2:15 PM</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[18px]">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-space-sm bg-surface-container-lowest rounded-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">picture_as_pdf</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-md text-body-md text-on-surface">Executive_Summary_v2.pdf</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">892 KB • Modified Oct 12</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">more_vert</span>
+</div>
+</div>
+<!-- Modal Backdrop Overlay -->
+<div class="w-full mt-[-165px] px-space-sm pb-space-lg flex flex-col z-10">
+<!-- Fluent Properties Dialog Frame -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-xl flex flex-col overflow-hidden">
+<!-- Dialog Header Bar (Fluent Style) -->
+<div class="bg-surface-container-low px-space-md py-space-sm flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-5 h-5 rounded bg-[#d83b01] flex items-center justify-center text-[10px] text-white font-bold leading-none">
+            P
+          </div>
+<span class="font-title-md text-title-md text-on-surface truncate">Q3_Strategic_Roadmap.pptx Properties</span>
+</div>
+<button aria-label="Close dialog" class="w-7 h-7 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container-highest transition-colors active:scale-95" id="closeModalBtn">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<!-- Acrylic Tab Navigation -->
+<div class="bg-surface-container-low px-space-sm pt-space-xs flex gap-1 overflow-x-auto">
+<button class="tab-button px-space-md py-space-xs rounded-t-lg bg-surface-container-lowest text-primary font-label-md text-label-md font-semibold transition-all relative" id="tab-general" onclick="switchTab('general')">
+          General
+          <span class="tab-indicator absolute bottom-0 left-2 right-2 h-[2px] bg-primary rounded-full"></span>
+</button>
+<button class="tab-button px-space-md py-space-xs rounded-t-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all relative" id="tab-security" onclick="switchTab('security')">
+          Security
+          <span class="tab-indicator hidden absolute bottom-0 left-2 right-2 h-[2px] bg-primary rounded-full"></span>
+</button>
+<button class="tab-button px-space-md py-space-xs rounded-t-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all relative" id="tab-details" onclick="switchTab('details')">
+          Details
+          <span class="tab-indicator hidden absolute bottom-0 left-2 right-2 h-[2px] bg-primary rounded-full"></span>
+</button>
+<button class="tab-button px-space-md py-space-xs rounded-t-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-all whitespace-nowrap relative" id="tab-versions" onclick="switchTab('versions')">
+          Previous Versions
+          <span class="tab-indicator hidden absolute bottom-0 left-2 right-2 h-[2px] bg-primary rounded-full"></span>
+</button>
+</div>
+<!-- Tab Content Area -->
+<div class="p-space-md flex flex-col gap-space-md bg-surface-container-lowest">
+<!-- GENERAL TAB -->
+<div class="tab-pane flex flex-col gap-space-md" id="content-general">
+<!-- File Identity Section -->
+<div class="flex items-center gap-space-md bg-surface-container-low p-space-sm rounded-lg">
+<!-- Win11 Rich PowerPoint Icon Frame -->
+<div class="w-14 h-14 relative flex-shrink-0 flex items-center justify-center rounded-xl bg-gradient-to-br from-[#ff8c00] to-[#c43802] shadow-sm">
+<span class="material-symbols-outlined text-white text-[28px]">slideshow</span>
+<span class="absolute bottom-1 right-1 text-[9px] font-bold text-white bg-black/40 px-1 rounded-sm leading-tight tracking-wider">PPTX</span>
+</div>
+<div class="flex flex-col flex-grow min-w-0">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-0.5" for="fileNameInput">File Name</label>
+<div class="relative flex items-center">
+<input class="w-full bg-surface-container-lowest px-space-sm py-1 rounded-lg text-on-surface font-title-md text-title-md focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary shadow-sm transition-all" id="fileNameInput" type="text" value="Q3_Strategic_Roadmap.pptx"/>
+<span class="absolute right-2 px-1 rounded bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold tracking-tight">PRESENTATION</span>
+</div>
+</div>
+</div>
+<!-- Type & Opens With Section -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-sm">
+<div class="flex items-start justify-between gap-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Type of file:</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Microsoft PowerPoint Presentation (.pptx)</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-6 h-6 rounded bg-[#d83b01] flex items-center justify-center text-white text-xs font-semibold shadow-xs">
+                  P
+                </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Opens with:</span>
+<span class="font-body-sm text-body-sm text-on-surface truncate">Office Mobile 365</span>
+</div>
+</div>
+<button class="px-space-md py-1 bg-surface-container-highest hover:bg-surface-variant text-on-surface font-label-md text-label-md rounded-lg active:scale-95 transition-all" id="changeAppBtn">
+                Change...
+              </button>
+</div>
+</div>
+<!-- Location & Storage Metrics Bento -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Location:</span>
+<div class="flex items-center gap-1 mt-0.5 bg-surface-container-lowest px-2 py-1 rounded-lg text-on-surface-variant font-code-sm text-code-sm">
+<span class="material-symbols-outlined text-[14px] text-primary">folder_open</span>
+<span class="truncate">/storage/emulated/0/Documents/Work Projects</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-space-xs">
+<div class="bg-surface-container-lowest p-space-xs rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Size:</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">14.2 MB</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">14,894,080 bytes</span>
+</div>
+<div class="bg-surface-container-lowest p-space-xs rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Size on disk:</span>
+<span class="font-body-md text-body-md font-semibold text-on-surface">14.2 MB</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">14,897,152 bytes</span>
+</div>
+</div>
+</div>
+<!-- Timestamps Section -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Created:</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Monday, Oct 14, 2024, 09:12:44 AM</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Modified:</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Today, Oct 20, 2024, 02:15:30 PM</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Accessed:</span>
+<span class="font-body-sm text-body-sm text-on-surface">Today, Oct 20, 2024, 03:00:15 PM</span>
+</div>
+</div>
+<!-- Attributes Checklist Section -->
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-semibold">Attributes:</span>
+<button class="px-space-sm py-0.5 bg-surface-container-highest hover:bg-surface-variant text-on-surface font-label-sm text-label-sm rounded-lg transition-colors" id="advancedBtn">
+                Advanced...
+              </button>
+</div>
+<div class="flex items-center gap-space-lg pt-1">
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input class="accent-primary rounded w-4 h-4 cursor-pointer" id="attr-readonly" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Read-only</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input class="accent-primary rounded w-4 h-4 cursor-pointer" id="attr-hidden" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface">Hidden</span>
+</label>
+<label class="flex items-center gap-space-xs cursor-pointer select-none">
+<input checked="" class="accent-primary rounded w-4 h-4 cursor-pointer" id="attr-archive" type="checkbox"/>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Archive</span>
+</label>
+</div>
+</div>
+</div>
+<!-- SECURITY TAB PANE (Lazy switch) -->
+<div class="tab-pane hidden flex flex-col gap-space-sm" id="content-security">
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Group or user names:</span>
+<div class="bg-surface-container-lowest p-space-xs rounded-lg flex flex-col gap-1 text-on-surface font-body-sm text-body-sm">
+<div class="flex items-center gap-2 p-1 rounded bg-secondary-fixed/40">
+<span class="material-symbols-outlined text-[16px] text-primary">account_circle</span>
+<span>SYSTEM</span>
+</div>
+<div class="flex items-center gap-2 p-1 rounded">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span>Administrators (Device Owner)</span>
+</div>
+<div class="flex items-center gap-2 p-1 rounded">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+<span>Users (Local Access)</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Permissions for SYSTEM:</span>
+<div class="grid grid-cols-2 gap-y-1 font-body-sm text-body-sm text-on-surface pt-1">
+<span>Full control</span> <span class="text-right text-primary font-medium">Allow</span>
+<span>Modify</span> <span class="text-right text-primary font-medium">Allow</span>
+<span>Read &amp; execute</span> <span class="text-right text-primary font-medium">Allow</span>
+<span>Read</span> <span class="text-right text-primary font-medium">Allow</span>
+<span>Write</span> <span class="text-right text-primary font-medium">Allow</span>
+</div>
+</div>
+</div>
+<!-- DETAILS TAB PANE -->
+<div class="tab-pane hidden flex flex-col gap-space-sm" id="content-details">
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col gap-space-xs">
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Title</span>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Q3 Global Strategy &amp; Objectives</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Subject</span>
+<span class="font-body-sm text-body-sm text-on-surface">Strategic Planning</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Authors</span>
+<span class="font-body-sm text-body-sm text-primary font-medium">Product Operations Lead</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Slides Count</span>
+<span class="font-body-sm text-body-sm text-on-surface">42 slides</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Revision Number</span>
+<span class="font-body-sm text-body-sm text-on-surface">14</span>
+</div>
+<div class="flex justify-between py-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Template</span>
+<span class="font-body-sm text-body-sm text-on-surface">Corporate_Fluent_2024.potx</span>
+</div>
+</div>
+</div>
+<!-- PREVIOUS VERSIONS TAB PANE -->
+<div class="tab-pane hidden flex flex-col gap-space-sm" id="content-versions">
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col items-center justify-center py-space-xl text-center">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-container mb-space-sm">
+<span class="material-symbols-outlined text-[24px]">history</span>
+</div>
+<span class="font-title-md text-title-md text-on-surface font-semibold">File History Active</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs mt-1">2 cloud versions backed up to OneDrive Personal Cloud.</p>
+<div class="w-full mt-space-md flex flex-col gap-1 text-left">
+<div class="bg-surface-container-lowest p-space-sm rounded-lg flex items-center justify-between">
+<div>
+<div class="font-body-md text-body-md text-on-surface font-medium">v13 • Oct 18, 2024, 4:30 PM</div>
+<div class="font-code-sm text-code-sm text-on-surface-variant">13.8 MB • Cloud snapshot</div>
+</div>
+<button class="px-space-sm py-1 bg-surface-container text-primary font-label-sm text-label-sm rounded hover:bg-surface-container-high">Restore</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Footer (Fluent OK / Cancel / Apply bar) -->
+<div class="bg-surface-container-low px-space-md py-space-sm flex items-center justify-end gap-space-sm">
+<button class="px-space-lg py-1.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md font-semibold hover:bg-primary-container shadow-sm active:scale-95 transition-all" id="okBtn">
+          OK
+        </button>
+<button class="px-space-md py-1.5 bg-surface-container-highest text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-variant active:scale-95 transition-all" id="cancelBtn">
+          Cancel
+        </button>
+<button class="px-space-md py-1.5 bg-surface-container-highest opacity-40 text-on-surface-variant rounded-lg font-label-md text-label-md cursor-not-allowed" disabled="" id="applyBtn">
+          Apply
+        </button>
+</div>
+</div>
+<!-- Micro-toast notice banner -->
+<div class="hidden mt-space-sm w-full bg-inverse-surface text-inverse-on-surface px-space-md py-space-sm rounded-lg shadow-md flex items-center gap-space-sm transition-all duration-300" id="toastMessage">
+<span class="material-symbols-outlined text-[18px] text-primary-fixed">check</span>
+<span class="font-body-sm text-body-sm" id="toastText">Properties updated successfully.</span>
+</div>
+</div>
+</div>
+<script>
+  function switchTab(tabName) {
+    // Hide all contents
+    const panes = document.querySelectorAll('.tab-pane');
+    panes.forEach(pane => pane.classList.add('hidden'));
+
+    // Reset tab button states
+    const buttons = document.querySelectorAll('.tab-button');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-surface-container-lowest', 'text-primary', 'font-semibold');
+      btn.classList.add('text-on-surface-variant');
+      const ind = btn.querySelector('.tab-indicator');
+      if (ind) ind.classList.add('hidden');
+    });
+
+    // Activate selected
+    const activePane = document.getElementById('content-' + tabName);
+    const activeBtn = document.getElementById('tab-' + tabName);
+    
+    if (activePane) activePane.classList.remove('hidden');
+    if (activeBtn) {
+      activeBtn.classList.remove('text-on-surface-variant');
+      activeBtn.classList.add('bg-surface-container-lowest', 'text-primary', 'font-semibold');
+      const ind = activeBtn.querySelector('.tab-indicator');
+      if (ind) ind.classList.remove('hidden');
+    }
+  }
+
+  // Interactivity for Apply button state & Toasts
+  const fileInput = document.getElementById('fileNameInput');
+  const applyBtn = document.getElementById('applyBtn');
+  const toastMessage = document.getElementById('toastMessage');
+  const toastText = document.getElementById('toastText');
+
+  function showToast(msg) {
+    if (!toastMessage || !toastText) return;
+    toastText.innerText = msg;
+    toastMessage.classList.remove('hidden');
+    setTimeout(() => {
+      toastMessage.classList.add('hidden');
+    }, 2800);
+  }
+
+  function markDirty() {
+    if (!applyBtn) return;
+    applyBtn.removeAttribute('disabled');
+    applyBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+    applyBtn.classList.add('hover:bg-surface-variant', 'text-on-surface');
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('input', markDirty);
+  }
+
+  const checkboxes = ['attr-readonly', 'attr-hidden', 'attr-archive'];
+  checkboxes.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', markDirty);
+  });
+
+  const okBtn = document.getElementById('okBtn');
+  if (okBtn) {
+    okBtn.addEventListener('click', () => {
+      showToast('Changes applied for Q3_Strategic_Roadmap.pptx');
+      if (applyBtn) {
+        applyBtn.setAttribute('disabled', 'true');
+        applyBtn.classList.add('opacity-40', 'cursor-not-allowed');
+      }
+    });
+  }
+
+  const applyButton = document.getElementById('applyBtn');
+  if (applyButton) {
+    applyButton.addEventListener('click', () => {
+      showToast('File metadata updated');
+      applyButton.setAttribute('disabled', 'true');
+      applyButton.classList.add('opacity-40', 'cursor-not-allowed');
+    });
+  }
+
+  const cancelBtn = document.getElementById('cancelBtn');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  [cancelBtn, closeModalBtn].forEach(btn => {
+    if (btn) {
+      btn.addEventListener('click', () => {
+        showToast('Properties dialog closed');
+      });
+    }
+  });
+
+  const changeAppBtn = document.getElementById('changeAppBtn');
+  if (changeAppBtn) {
+    changeAppBtn.addEventListener('click', () => {
+      showToast('Opening default app selector dialog...');
+    });
+  }
+
+  const advancedBtn = document.getElementById('advancedBtn');
+  if (advancedBtn) {
+    advancedBtn.addEventListener('click', () => {
+      showToast('Advanced attributes: Compress & Encrypt options');
+    });
+  }
+</script></main></body></html>

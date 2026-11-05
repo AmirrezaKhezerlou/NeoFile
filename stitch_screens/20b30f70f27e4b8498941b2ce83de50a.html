@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "surface-container-highest": "#e3e2e2", "error": "#ba1a1a", "surface": "#fbf9f9", "on-surface": "#1b1c1c", "surface-variant": "#e3e2e2", "surface-container-low": "#f5f3f3", "surface-bright": "#fbf9f9", "on-surface-variant": "#414751", "surface-dim": "#dbdad9", "on-secondary-container": "#003664", "on-primary-fixed": "#001c39", "on-tertiary-container": "#d4e6ff", "outline": "#717783", "surface-tint": "#0060ab", "primary": "#004f8f", "error-container": "#ffdad6", "inverse-on-surface": "#f2f0f0", "primary-container": "#0067b8", "tertiary": "#005088", "on-primary-fixed-variant": "#004883", "surface-container-high": "#e9e8e7", "on-secondary": "#ffffff", "on-error-container": "#93000a", "primary-fixed-dim": "#a3c9ff", "surface-container": "#efeded", "tertiary-container": "#0069b0", "on-secondary-fixed-variant": "#004883", "on-background": "#1b1c1c", "background": "#fbf9f9", "on-primary": "#ffffff", "tertiary-fixed-dim": "#9ecaff", "tertiary-fixed": "#d1e4ff", "on-primary-container": "#d6e5ff", "inverse-surface": "#303031", "on-tertiary-fixed-variant": "#00497d", "secondary-fixed": "#d3e3ff", "primary-fixed": "#d3e3ff", "secondary-container": "#4ca0ff", "inverse-primary": "#a3c9ff", "secondary-fixed-dim": "#a3c9ff", "on-error": "#ffffff", "on-secondary-fixed": "#001c39", "on-tertiary-fixed": "#001d36", "outline-variant": "#c1c7d3", "secondary": "#0060ab" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1rem", "space-sm": "0.5rem", "gutter": "0.75rem" }, "fontFamily": { "body-md": ["Hanken Grotesk"], "headline-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "headline-sm": ["Hanken Grotesk"], "headline-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Hanken Grotesk"], "label-sm": ["Hanken Grotesk"], "code-sm": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "title-md": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"] }, "fontSize": { "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }], "body-lg": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "title-md": ["15px", { "lineHeight": "20px", "fontWeight": "500" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-48 flex flex-col justify-between"><div class="flex items-center justify-between px-margin py-space-xs"><div class="flex items-center gap-space-sm"><img alt="Explorer Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UZbDh8UYt_zt8IryxF5eN__7VXcFYe2BC-Y96BnCYnTCrn2ehGgZ9rJNNU14UGYxVyKFHUuSDbouL22dSED6XcUY3n_Or4nNZGaHVjzT6plPnBSFYQJzhVgSKLr3k4sSwo_3-i9h_sdS0A8okWqOp4yjGajiVz7ExHdrk6F7LQZaTMpHeOQP50fIksUWJ9K3qWYwqV3_09TrmHqR2HwtFe4iVt2UtcVmUD1iJcMUnJYlkznrVVk-DZWt8"/><span class="font-title-md text-title-md text-on-surface tracking-tight font-semibold">File Explorer</span><span class="text-outline-variant">•</span><span class="font-label-md text-label-md text-on-surface-variant font-medium">Explorer Settings</span></div><div class="flex items-center gap-space-sm"><button aria-label="More actions" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">more_horiz</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center gap-space-xs px-margin overflow-x-auto no-scrollbar"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-t-lg shadow-sm"><span class="material-symbols-outlined text-primary text-[16px]">home</span><span class="font-label-md text-label-md text-on-surface font-medium">Home</span><button class="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded ml-space-xs"><span class="material-symbols-outlined text-[13px]">close</span></button></div><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-t-lg opacity-85 hover:opacity-100"><span class="material-symbols-outlined text-secondary text-[16px]">cloud_sync</span><span class="font-label-md text-label-md text-on-surface-variant font-medium">Cloud &amp; Network</span><button class="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded ml-space-xs"><span class="material-symbols-outlined text-[13px]">close</span></button></div><button aria-label="New tab" class="w-8 h-7 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[18px]">add</span></button></div><div class="flex items-center gap-space-xs px-margin py-space-xs bg-surface-container-low"><div class="flex items-center"><button aria-label="Back" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">arrow_back</span></button><button aria-label="Forward" class="w-8 h-8 flex items-center justify-center text-outline-variant" disabled=""><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button><button aria-label="Up folder" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button><button aria-label="Refresh" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">refresh</span></button></div><div class="flex-1 flex items-center bg-surface-container-lowest px-space-sm h-8 rounded-lg shadow-sm"><span class="material-symbols-outlined text-secondary text-[16px] mr-space-xs">laptop</span><div class="flex-1 flex items-center gap-space-xs overflow-x-auto whitespace-nowrap"><span class="font-label-sm text-label-sm text-on-surface-variant">This PC</span><span class="material-symbols-outlined text-outline text-[12px]">chevron_right</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">Explorer View</span></div><span class="material-symbols-outlined text-on-surface-variant text-[16px] ml-space-xs">expand_more</span></div></div><div class="flex items-center gap-space-xs px-margin py-space-xs overflow-x-auto whitespace-nowrap bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.02)]"><button class="h-7 px-space-sm flex items-center gap-space-xs bg-primary-container text-on-primary rounded font-label-md text-label-md shadow-sm"><span class="material-symbols-outlined text-[16px]">add</span><span>New</span><span class="material-symbols-outlined text-[14px]">expand_more</span></button><div class="h-4 w-[1px] bg-outline-variant mx-space-xs"></div><button aria-label="Cut" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">content_cut</span></button><button aria-label="Copy" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">content_copy</span></button><button aria-label="Paste" class="w-7 h-7 flex items-center justify-center text-outline-variant" disabled=""><span class="material-symbols-outlined text-[16px]">content_paste</span></button><button aria-label="Rename" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">edit</span></button><button aria-label="Share" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">share</span></button><button aria-label="Delete" class="w-7 h-7 flex items-center justify-center text-error hover:bg-error-container rounded"><span class="material-symbols-outlined text-[16px]">delete</span></button><div class="h-4 w-[1px] bg-outline-variant mx-space-xs"></div><button class="h-7 px-space-xs flex items-center gap-space-xs text-on-surface hover:bg-surface-container-high rounded font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">sort</span><span>Sort</span></button><button class="h-7 px-space-xs flex items-center gap-space-xs text-on-surface hover:bg-surface-container-high rounded font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">grid_view</span><span>View</span></button></div></div></header><main class="flex flex-col relative w-full pt-48 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full px-margin pb-space-xl gap-space-lg">
+<!-- Search Filter Header in Fluent Style -->
+<div class="relative w-full">
+<div class="flex items-center w-full h-10 px-space-md rounded-lg bg-surface-container-lowest shadow-sm gap-space-sm transition-all focus-within:shadow-md">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">search</span>
+<input class="w-full bg-transparent text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none" id="settingsSearch" placeholder="Find a setting" type="search"/>
+<button aria-label="Clear or voice" class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded transition-colors">
+<span class="material-symbols-outlined text-[16px]">mic</span>
+</button>
+</div>
+</div>
+<!-- Section 1: Account & Cloud Sync Hero Card -->
+<div class="flex flex-col rounded-xl bg-surface-container-lowest p-space-md shadow-sm gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container-high flex items-center justify-center shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Digital art portrait of a software engineer named Alex with headphones, soft studio portrait lighting, friendly expression, Windows Fluent pastel color theme with cool ambient blues and crisp details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDppw6T2rhqv7C6L4x17fqi1YX8GhBw-d6Smeyl0hIyUFKQXuH1oB-YZCuNVxisS1kQTu2v6xCSP7aPIfwhQvb6CEIy-CpH95Y5kSpai8tl8G-Ac0iHAW4JJBaYLm9Pg3wNDYdkDnSc8fh6uC6ElgF-1SAsjeswiciw7H0DknsGUoIWa3BdbGHRTVNRKAreLsOhnGOdLqay5_cEeHUuc1TBnCfVKwHstJACrAyBNOt3d_-PKNndAKPd"/>
+</div>
+<span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-tertiary-container rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[11px] text-on-tertiary font-bold">sync</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-title-md text-title-md text-on-surface font-semibold truncate">Alex Rivera</span>
+<span class="bg-surface-container px-1.5 py-0.5 rounded text-label-sm font-label-sm text-primary font-medium tracking-wide">MSFT Pro</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant truncate">alex.developer@gmail.com</span>
+</div>
+</div>
+<button aria-label="Account settings" class="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">chevron_right</span>
+</button>
+</div>
+<!-- Sync Sub-row with Fluent Badge -->
+<div class="flex items-center justify-between pt-space-xs bg-surface-container-low/70 px-space-md py-space-sm rounded-lg">
+<div class="flex items-center gap-space-sm min-w-0">
+<span class="material-symbols-outlined text-secondary text-[18px]">cloud_done</span>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface font-medium truncate">OneDrive &amp; Drive Sync</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Last synced 2m ago • 1.2 TB free</span>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 bg-surface-container-lowest text-tertiary px-2 py-0.5 rounded-full font-label-sm text-label-sm shadow-xs font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-container animate-pulse"></span>
+        Syncing
+      </span>
+</div>
+</div>
+<!-- Section 2: View & Layout Preferences -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs px-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">view_quilt</span>
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">View &amp; Layout</h2>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-container-lowest shadow-sm divide-y-0 overflow-hidden">
+<!-- Segmented View Toggle -->
+<div class="p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface font-medium">Default view mode</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">Folder template</span>
+</div>
+<!-- 3-Way Fluent Segmented Switch -->
+<div class="grid grid-cols-3 p-0.5 bg-surface-container rounded-lg gap-0.5" id="viewModeToggle">
+<button class="view-opt-btn flex items-center justify-center gap-1.5 py-1.5 rounded bg-surface-container-lowest text-on-surface shadow-xs transition-all font-label-md text-label-md font-semibold" data-mode="details" type="button">
+<span class="material-symbols-outlined text-[15px] text-primary">view_list</span>
+<span>Details</span>
+</button>
+<button class="view-opt-btn flex items-center justify-center gap-1.5 py-1.5 rounded text-on-surface-variant hover:text-on-surface transition-all font-label-md text-label-md" data-mode="tiles" type="button">
+<span class="material-symbols-outlined text-[15px]">grid_goldenratio</span>
+<span>Tiles</span>
+</button>
+<button class="view-opt-btn flex items-center justify-center gap-1.5 py-1.5 rounded text-on-surface-variant hover:text-on-surface transition-all font-label-md text-label-md" data-mode="grid" type="button">
+<span class="material-symbols-outlined text-[15px]">grid_view</span>
+<span>Grid</span>
+</button>
+</div>
+</div>
+<!-- Item 1: Show hidden files (ON) -->
+<div class="flex items-center justify-between px-space-md py-space-sm hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0 pr-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">visibility</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-medium truncate">Show hidden files, folders &amp; drives</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">Display dotfiles and hidden attributes</span>
+</div>
+</div>
+<!-- Win11 Pill Toggle -->
+<button aria-checked="true" class="fluent-switch relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full bg-primary-container p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" type="button">
+<span class="pointer-events-none inline-block h-4 w-4 transform translate-x-5 rounded-full bg-surface-container-lowest shadow-sm transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Item 2: Show file extensions (ON) -->
+<div class="flex items-center justify-between px-space-md py-space-sm hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0 pr-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">extension</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-medium truncate">Show file name extensions</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">e.g. .pdf, .docx, .tar.gz</span>
+</div>
+</div>
+<button aria-checked="true" class="fluent-switch relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full bg-primary-container p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" type="button">
+<span class="pointer-events-none inline-block h-4 w-4 transform translate-x-5 rounded-full bg-surface-container-lowest shadow-sm transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Item 3: Show item checkboxes (ON) -->
+<div class="flex items-center justify-between px-space-md py-space-sm hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0 pr-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">check_box</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-medium truncate">Show item check boxes</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">Facilitates easy touch multi-selection</span>
+</div>
+</div>
+<button aria-checked="true" class="fluent-switch relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full bg-primary-container p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" type="button">
+<span class="pointer-events-none inline-block h-4 w-4 transform translate-x-5 rounded-full bg-surface-container-lowest shadow-sm transition duration-200 ease-in-out"></span>
+</button>
+</div>
+<!-- Item 4: Compact spacing (OFF) -->
+<div class="flex items-center justify-between px-space-md py-space-sm hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center gap-space-sm min-w-0 pr-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">density_medium</span>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-medium truncate">Compact spacing</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">Reduce vertical item padding</span>
+</div>
+</div>
+<button aria-checked="false" class="fluent-switch relative inline-flex h-5 w-10 shrink-0 cursor-pointer rounded-full bg-outline-variant p-0.5 transition-colors duration-200 ease-in-out focus:outline-none" role="switch" type="button">
+<span class="pointer-events-none inline-block h-4 w-4 transform translate-x-0 rounded-full bg-surface-container-lowest shadow-sm transition duration-200 ease-in-out"></span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section 3: Storage & Cache Management -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs px-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">storage</span>
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">Storage &amp; Cache</h2>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-container-lowest p-space-md shadow-sm gap-space-md">
+<!-- Storage Meter Card -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">smartphone</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">Internal Shared Storage</span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant font-medium">78.4 GB free of 128 GB</span>
+</div>
+<!-- Fluent Progress Bar -->
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full rounded-full transition-all duration-500" style="width: 38.75%;"></div>
+</div>
+<div class="flex items-center justify-between pt-space-xs">
+<span class="font-code-sm text-code-sm text-on-surface-variant">49.6 GB used (38.8%)</span>
+<button class="flex items-center gap-1 px-space-sm py-1 bg-surface-container-low hover:bg-surface-container text-on-surface rounded font-label-md text-label-md transition-colors active:scale-95" id="cleanTempBtn">
+<span class="material-symbols-outlined text-[15px] text-tertiary">mop</span>
+<span>Clean temporary files</span>
+</button>
+</div>
+</div>
+<div class="h-[1px] bg-surface-container w-full"></div>
+<!-- Cache Details Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0 pr-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">photo_library</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-md text-body-md text-on-surface font-medium truncate">Thumbnail cache</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant" id="cacheSizeText">342 MB reserved locally</span>
+</div>
+</div>
+<button class="flex items-center gap-1 px-space-sm py-1.5 bg-error-container hover:bg-error-container/80 text-on-error-container rounded font-label-md text-label-md font-semibold transition-colors active:scale-95 shadow-xs" id="clearCacheBtn">
+<span class="material-symbols-outlined text-[14px]">delete_sweep</span>
+<span>Clear Cache</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Section 4: Privacy & Permissions -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs px-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">verified_user</span>
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">Privacy &amp; Permissions</h2>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden">
+<!-- MANAGE_EXTERNAL_STORAGE Row -->
+<div class="flex items-center justify-between p-space-md">
+<div class="flex items-start gap-space-sm min-w-0 pr-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-primary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">folder_special</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="font-body-md text-body-md text-on-surface font-medium">All Files Access</span>
+<span class="inline-flex items-center gap-0.5 bg-surface-container text-tertiary px-1.5 py-0.5 rounded font-code-sm text-code-sm font-semibold">
+<span class="material-symbols-outlined text-[12px] text-tertiary font-bold">check_circle</span>
+                Granted
+              </span>
+</div>
+<span class="font-code-sm text-code-sm text-on-surface-variant truncate">MANAGE_EXTERNAL_STORAGE Android permission</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline-variant text-[20px]">lock_open</span>
+</div>
+<div class="h-[1px] bg-surface-container w-full"></div>
+<!-- Manage App Permissions Trigger -->
+<button class="flex items-center justify-between w-full p-space-md text-left hover:bg-surface-container-low/40 transition-colors">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">admin_panel_settings</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Manage Android app permissions</span>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="font-label-sm text-label-sm">OS Settings</span>
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Section 5: About Section -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs px-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">info</span>
+<h2 class="font-title-md text-title-md text-on-surface font-semibold">About</h2>
+</div>
+<div class="flex flex-col rounded-xl bg-surface-container-lowest p-space-md shadow-sm gap-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-surface-container-low flex items-center justify-center p-2 shrink-0">
+<img alt="File Explorer Icon" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UZbDh8UYt_zt8IryxF5eN__7VXcFYe2BC-Y96BnCYnTCrn2ehGgZ9rJNNU14UGYxVyKFHUuSDbouL22dSED6XcUY3n_Or4nNZGaHVjzT6plPnBSFYQJzhVgSKLr3k4sSwo_3-i9h_sdS0A8okWqOp4yjGajiVz7ExHdrk6F7LQZaTMpHeOQP50fIksUWJ9K3qWYwqV3_09TrmHqR2HwtFe4iVt2UtcVmUD1iJcMUnJYlkznrVVk-DZWt8"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface font-semibold">Windows File Explorer for Android</span>
+<span class="font-code-sm text-code-sm text-on-surface-variant">v24H2 • Build 26100.1</span>
+<span class="font-label-sm text-label-sm text-primary mt-0.5">Fluent Design System 2.0</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-xs pt-space-xs">
+<a class="flex items-center justify-center gap-1 py-1.5 px-space-sm rounded bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[15px]">description</span>
+<span>Terms &amp; License</span>
+</a>
+<a class="flex items-center justify-center gap-1 py-1.5 px-space-sm rounded bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[15px]">bug_report</span>
+<span>Send Feedback</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Vanilla micro-interactions for Fluent settings toggles
+  document.querySelectorAll('.fluent-switch').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const isChecked = this.getAttribute('aria-checked') === 'true';
+      const thumb = this.querySelector('span');
+      if (isChecked) {
+        this.setAttribute('aria-checked', 'false');
+        this.classList.remove('bg-primary-container');
+        this.classList.add('bg-outline-variant');
+        thumb.classList.remove('translate-x-5');
+        thumb.classList.add('translate-x-0');
+      } else {
+        this.setAttribute('aria-checked', 'true');
+        this.classList.remove('bg-outline-variant');
+        this.classList.add('bg-primary-container');
+        thumb.classList.remove('translate-x-0');
+        thumb.classList.add('translate-x-5');
+      }
+    });
+  });
+
+  // Segmented control switcher
+  const viewButtons = document.querySelectorAll('.view-opt-btn');
+  viewButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewButtons.forEach(b => {
+        b.classList.remove('bg-surface-container-lowest', 'text-on-surface', 'font-semibold', 'shadow-xs');
+        b.classList.add('text-on-surface-variant');
+      });
+      btn.classList.add('bg-surface-container-lowest', 'text-on-surface', 'font-semibold', 'shadow-xs');
+      btn.classList.remove('text-on-surface-variant');
+    });
+  });
+
+  // Cache wipe interactive feedback
+  const clearCacheBtn = document.getElementById('clearCacheBtn');
+  const cacheSizeText = document.getElementById('cacheSizeText');
+  if (clearCacheBtn && cacheSizeText) {
+    clearCacheBtn.addEventListener('click', () => {
+      clearCacheBtn.innerHTML = '<span class="material-symbols-outlined text-[14px] animate-spin">refresh</span> Clearing...';
+      setTimeout(() => {
+        cacheSizeText.textContent = '0 B reserved locally';
+        clearCacheBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span> Cleared';
+        clearCacheBtn.classList.replace('bg-error-container', 'bg-surface-container');
+        clearCacheBtn.classList.replace('text-on-error-container', 'text-on-surface-variant');
+        clearCacheBtn.disabled = true;
+      }, 500);
+    });
+  }
+
+  // Temp files clean interaction
+  const cleanTempBtn = document.getElementById('cleanTempBtn');
+  if (cleanTempBtn) {
+    cleanTempBtn.addEventListener('click', () => {
+      cleanTempBtn.innerHTML = '<span class="material-symbols-outlined text-[14px]">done</span> 1.4 GB cleaned';
+      setTimeout(() => {
+        cleanTempBtn.innerHTML = '<span class="material-symbols-outlined text-[15px] text-tertiary">mop</span><span>Clean temporary files</span>';
+      }, 2500);
+    });
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.06)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-sm"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="file-explorer---home" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="font-label-sm text-label-sm mt-0.5">Home</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="grid-file-browser" href="#"><span class="material-symbols-outlined text-[22px]">hard_drive</span><span class="font-label-sm text-label-sm mt-0.5">Storage</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="network-&amp;-cloud-drives" href="#"><span class="material-symbols-outlined text-[22px]">cloud_sync</span><span class="font-label-sm text-label-sm mt-0.5">Network</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] transition-colors text-primary font-semibold" data-path="explorer-settings" href="#"><span class="material-symbols-outlined text-[22px]">settings</span><span class="font-label-sm text-label-sm mt-0.5">Settings</span></a></div></nav></body></html>

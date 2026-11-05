@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;1,400&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "surface-container-highest": "#e3e2e2", "error": "#ba1a1a", "surface": "#fbf9f9", "on-surface": "#1b1c1c", "surface-variant": "#e3e2e2", "surface-container-low": "#f5f3f3", "surface-bright": "#fbf9f9", "on-surface-variant": "#414751", "surface-dim": "#dbdad9", "on-secondary-container": "#003664", "on-primary-fixed": "#001c39", "on-tertiary-container": "#d4e6ff", "outline": "#717783", "surface-tint": "#0060ab", "primary": "#004f8f", "error-container": "#ffdad6", "inverse-on-surface": "#f2f0f0", "primary-container": "#0067b8", "tertiary": "#005088", "on-primary-fixed-variant": "#004883", "surface-container-high": "#e9e8e7", "on-secondary": "#ffffff", "on-error-container": "#93000a", "primary-fixed-dim": "#a3c9ff", "surface-container": "#efeded", "tertiary-container": "#0069b0", "on-secondary-fixed-variant": "#004883", "on-background": "#1b1c1c", "background": "#fbf9f9", "on-primary": "#ffffff", "tertiary-fixed-dim": "#9ecaff", "tertiary-fixed": "#d1e4ff", "on-primary-container": "#d6e5ff", "inverse-surface": "#303031", "on-tertiary-fixed-variant": "#00497d", "secondary-fixed": "#d3e3ff", "primary-fixed": "#d3e3ff", "secondary-container": "#4ca0ff", "inverse-primary": "#a3c9ff", "secondary-fixed-dim": "#a3c9ff", "on-error": "#ffffff", "on-secondary-fixed": "#001c39", "on-tertiary-fixed": "#001d36", "outline-variant": "#c1c7d3", "secondary": "#0060ab" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "margin": "1rem", "space-md": "0.75rem", "space-xs": "0.25rem", "space-xl": "1.5rem", "space-lg": "1rem", "space-sm": "0.5rem", "gutter": "0.75rem" }, "fontFamily": { "body-md": ["Hanken Grotesk"], "headline-md": ["Hanken Grotesk"], "body-sm": ["Hanken Grotesk"], "headline-sm": ["Hanken Grotesk"], "headline-lg": ["Hanken Grotesk"], "headline-lg-mobile": ["Hanken Grotesk"], "label-sm": ["Hanken Grotesk"], "code-sm": ["Hanken Grotesk"], "body-lg": ["Hanken Grotesk"], "title-md": ["Hanken Grotesk"], "label-md": ["Hanken Grotesk"] }, "fontSize": { "body-md": ["13px", { "lineHeight": "18px", "fontWeight": "400" }], "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }], "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "600" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.015em", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.02em", "fontWeight": "500" }], "code-sm": ["11px", { "lineHeight": "14px", "fontWeight": "400" }], "body-lg": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "title-md": ["15px", { "lineHeight": "20px", "fontWeight": "500" }], "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "500" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe"><div class="h-48 flex flex-col justify-between"><div class="flex items-center justify-between px-margin py-space-xs"><div class="flex items-center gap-space-sm"><img alt="Explorer Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1UZbDh8UYt_zt8IryxF5eN__7VXcFYe2BC-Y96BnCYnTCrn2ehGgZ9rJNNU14UGYxVyKFHUuSDbouL22dSED6XcUY3n_Or4nNZGaHVjzT6plPnBSFYQJzhVgSKLr3k4sSwo_3-i9h_sdS0A8okWqOp4yjGajiVz7ExHdrk6F7LQZaTMpHeOQP50fIksUWJ9K3qWYwqV3_09TrmHqR2HwtFe4iVt2UtcVmUD1iJcMUnJYlkznrVVk-DZWt8"/><span class="font-title-md text-title-md text-on-surface tracking-tight font-semibold">File Explorer</span><span class="text-outline-variant">•</span><span class="font-label-md text-label-md text-on-surface-variant font-medium">Grid File Browser</span></div><div class="flex items-center gap-space-sm"><button aria-label="More actions" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded-lg transition-colors"><span class="material-symbols-outlined text-[20px]">more_horiz</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-sm"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><div class="flex items-center gap-space-xs px-margin overflow-x-auto no-scrollbar"><div class="flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-t-lg shadow-sm"><span class="material-symbols-outlined text-primary text-[16px]">home</span><span class="font-label-md text-label-md text-on-surface font-medium">Home</span><button class="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded ml-space-xs"><span class="material-symbols-outlined text-[13px]">close</span></button></div><div class="flex items-center gap-space-xs bg-surface-container px-space-md py-space-xs rounded-t-lg opacity-85 hover:opacity-100"><span class="material-symbols-outlined text-secondary text-[16px]">cloud_sync</span><span class="font-label-md text-label-md text-on-surface-variant font-medium">Cloud &amp; Network</span><button class="w-5 h-5 flex items-center justify-center text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded ml-space-xs"><span class="material-symbols-outlined text-[13px]">close</span></button></div><button aria-label="New tab" class="w-8 h-7 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded transition-colors"><span class="material-symbols-outlined text-[18px]">add</span></button></div><div class="flex items-center gap-space-xs px-margin py-space-xs bg-surface-container-low"><div class="flex items-center"><button aria-label="Back" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">arrow_back</span></button><button aria-label="Forward" class="w-8 h-8 flex items-center justify-center text-outline-variant" disabled=""><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button><button aria-label="Up folder" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">arrow_upward</span></button><button aria-label="Refresh" class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[18px]">refresh</span></button></div><div class="flex-1 flex items-center bg-surface-container-lowest px-space-sm h-8 rounded-lg shadow-sm"><span class="material-symbols-outlined text-secondary text-[16px] mr-space-xs">laptop</span><div class="flex-1 flex items-center gap-space-xs overflow-x-auto whitespace-nowrap"><span class="font-label-sm text-label-sm text-on-surface-variant">This PC</span><span class="material-symbols-outlined text-outline text-[12px]">chevron_right</span><span class="font-label-sm text-label-sm text-on-surface font-semibold">Explorer View</span></div><span class="material-symbols-outlined text-on-surface-variant text-[16px] ml-space-xs">expand_more</span></div></div><div class="flex items-center gap-space-xs px-margin py-space-xs overflow-x-auto whitespace-nowrap bg-surface-container-lowest shadow-[0_1px_4px_rgba(0,0,0,0.02)]"><button class="h-7 px-space-sm flex items-center gap-space-xs bg-primary-container text-on-primary rounded font-label-md text-label-md shadow-sm"><span class="material-symbols-outlined text-[16px]">add</span><span>New</span><span class="material-symbols-outlined text-[14px]">expand_more</span></button><div class="h-4 w-[1px] bg-outline-variant mx-space-xs"></div><button aria-label="Cut" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">content_cut</span></button><button aria-label="Copy" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">content_copy</span></button><button aria-label="Paste" class="w-7 h-7 flex items-center justify-center text-outline-variant" disabled=""><span class="material-symbols-outlined text-[16px]">content_paste</span></button><button aria-label="Rename" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">edit</span></button><button aria-label="Share" class="w-7 h-7 flex items-center justify-center text-on-surface hover:bg-surface-container-high rounded"><span class="material-symbols-outlined text-[16px]">share</span></button><button aria-label="Delete" class="w-7 h-7 flex items-center justify-center text-error hover:bg-error-container rounded"><span class="material-symbols-outlined text-[16px]">delete</span></button><div class="h-4 w-[1px] bg-outline-variant mx-space-xs"></div><button class="h-7 px-space-xs flex items-center gap-space-xs text-on-surface hover:bg-surface-container-high rounded font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">sort</span><span>Sort</span></button><button class="h-7 px-space-xs flex items-center gap-space-xs text-on-surface hover:bg-surface-container-high rounded font-label-md text-label-md"><span class="material-symbols-outlined text-[16px]">grid_view</span><span>View</span></button></div></div></header><main class="flex flex-col relative w-full pt-48 pb-24 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Interactive Folder Overview & Storage Status Banner -->
+<div class="px-margin pt-space-xs pb-space-sm flex flex-col gap-space-xs">
+<!-- Storage Bar & Quick Stats -->
+<div class="bg-surface-container-low rounded-xl p-space-sm shadow-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">folder_open</span>
+<span class="font-semibold text-on-surface">Work Projects</span>
+<span class="text-outline-variant">•</span>
+<span>Internal Storage</span>
+</div>
+<span class="text-primary font-medium">192.5 MB used</span>
+</div>
+<!-- Progress Bar (No borders) -->
+<div class="w-full h-1.5 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-500" style="width: 32%;"></div>
+</div>
+</div>
+</div>
+<!-- Command Strip & View State Filter -->
+<div class="px-margin py-space-xs flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar">
+<span class="bg-primary-fixed text-on-primary-fixed px-space-sm py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1 shadow-sm font-semibold">
+<span class="material-symbols-outlined text-[14px]">grid_view</span> Large Tiles
+      </span>
+<span class="bg-surface-container text-on-surface-variant px-space-sm py-0.5 rounded-full font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span> Modified: Newest
+      </span>
+</div>
+<!-- Quick Multiselect Toggle -->
+<button class="h-7 px-space-sm rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1 transition-colors" id="toggle-select-all">
+<span class="material-symbols-outlined text-[15px]">select_all</span>
+<span>Select</span>
+</button>
+</div>
+<!-- Large Tiles Grid Layout (2-column layout tailored for touch targets) -->
+<div class="px-margin py-space-sm grid grid-cols-2 gap-gutter">
+<!-- Item 1: Client Deliverables (Folder) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="0">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- Visual Large Icon with Windows Folder Materiality -->
+<div class="w-full h-24 rounded-lg bg-surface-container-low flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="relative flex items-center justify-center">
+<!-- Folder Icon Styling -->
+<span class="material-symbols-outlined text-[54px] text-[#e8b839]" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="material-symbols-outlined text-[20px] text-primary absolute bottom-1.5 right-1 opacity-90 drop-shadow-sm" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+</div>
+<span class="absolute bottom-1 right-1.5 px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-code-sm text-code-sm font-medium">12 files</span>
+</div>
+<!-- File Details -->
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Client Deliverables</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Today, 10:45 AM</span>
+</div>
+</div>
+<!-- Item 2: Contracts & Legal (Folder) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="0">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<div class="w-full h-24 rounded-lg bg-surface-container-low flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="relative flex items-center justify-center">
+<span class="material-symbols-outlined text-[54px] text-[#e8b839]" style="font-variation-settings: 'FILL' 1;">folder</span>
+<span class="material-symbols-outlined text-[18px] text-tertiary absolute bottom-2 right-0.5" style="font-variation-settings: 'FILL' 1;">lock</span>
+</div>
+<span class="absolute bottom-1 right-1.5 px-1.5 py-0.2 rounded bg-surface-container-highest text-on-surface-variant font-code-sm text-code-sm font-medium">5 files</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Contracts &amp; Legal</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Yesterday, 3:12 PM</span>
+</div>
+</div>
+<!-- Item 3: Q3 Strategic Roadmap.pptx (Selected State Demonstrated) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-primary-fixed/20 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-selected="true" data-size="14.2">
+<!-- Selected Indicator Checkbox -->
+<div class="absolute top-2 right-2 z-10">
+<div class="w-5 h-5 rounded-md bg-primary-container flex items-center justify-center text-on-primary shadow-sm">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+</div>
+<!-- Accent Highlight Bar on Left -->
+<div class="absolute left-0 top-3 bottom-3 w-1 bg-primary-container rounded-r-full"></div>
+<!-- PPTX Visual Tile Preview -->
+<div class="w-full h-24 rounded-lg bg-error-container/40 flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-error" style="font-variation-settings: 'FILL' 1;">co_present</span>
+</div>
+<!-- Modern File Type Badge -->
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-error text-on-error font-label-sm text-label-sm font-semibold tracking-wider">PPTX</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Q3 Strategic Roadmap.pptx</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>14.2 MB</span>
+<span class="text-primary font-medium">Selected</span>
+</div>
+</div>
+</div>
+<!-- Item 4: Project_Budget_2025.xlsx (Excel) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="4.1">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- XLSX Visual Tile -->
+<div class="w-full h-24 rounded-lg bg-[#00824b]/10 flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-[#00824b]" style="font-variation-settings: 'FILL' 1;">table_chart</span>
+</div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-[#00824b] text-on-primary font-label-sm text-label-sm font-semibold tracking-wider">XLSX</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Project_Budget_2025.xlsx</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>4.1 MB</span>
+<span>May 18</span>
+</div>
+</div>
+</div>
+<!-- Item 5: Architecture_Spec.pdf (PDF) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="3.8">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- PDF Visual Tile -->
+<div class="w-full h-24 rounded-lg bg-error-container/30 flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-error" style="font-variation-settings: 'FILL' 1;">picture_as_pdf</span>
+</div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-error text-on-error font-label-sm text-label-sm font-semibold tracking-wider">PDF</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Architecture_Spec.pdf</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>3.8 MB</span>
+<span>Apr 29</span>
+</div>
+</div>
+</div>
+<!-- Item 6: App_UI_Design.png (Image Preview Card) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="2.4">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- Rich Thumbnail Preview -->
+<div class="w-full h-24 rounded-lg bg-surface-container-high relative overflow-hidden mb-space-xs">
+<img class="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-300" data-alt="A clean modern tablet UI dashboard design concept showing blue gradients, glassmorphism card widgets, analytics bar chart, and modern Fluent style layout" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcvetrk8yF_0-dnf1CEnI83m04yf16SqLeqabyOQ_dnU02Hxu9U3q3n-BT-6juXh5v0RcbAZt4bJqOL9jhlVizsTZ9JMXiXLYQoHbnRvegKUYJRb2kYw6CPWF8a3PBYUDtWKUoLA5XcTcw3JiNsKAO7bWOyDYHkv5NrRBsPGHUA_Hnna33BVHkpbZJRsFXdkMXJAp_B1BIKwCaxQ6trUAhGmkNyh5l2JwcQDBWobrrIgv3QSgb7TRQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/60 via-transparent to-transparent"></div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-surface-container-lowest/90 backdrop-blur-sm text-on-surface font-label-sm text-label-sm font-semibold tracking-wider shadow-sm">PNG</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">App_UI_Design.png</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>2.4 MB</span>
+<span>1920×1080</span>
+</div>
+</div>
+</div>
+<!-- Item 7: App_Release_v2.apk (Android Package) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="58">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- APK Visual Tile -->
+<div class="w-full h-24 rounded-lg bg-[#3ddc84]/15 flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-[#128c46]" style="font-variation-settings: 'FILL' 1;">android</span>
+</div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-[#128c46] text-on-primary font-label-sm text-label-sm font-semibold tracking-wider">APK</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">App_Release_v2.apk</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>58 MB</span>
+<span>v2.1.0-prod</span>
+</div>
+</div>
+</div>
+<!-- Item 8: Source_Code_Backup.zip (Compressed Zip) -->
+<div class="file-card group relative flex flex-col p-space-sm rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-all duration-150 shadow-sm cursor-pointer active:scale-[0.98]" data-selectable="true" data-size="110">
+<div class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<div class="w-5 h-5 rounded-md bg-surface-container-highest flex items-center justify-center text-outline">
+<span class="material-symbols-outlined text-[14px]">check</span>
+</div>
+</div>
+<!-- ZIP Visual Tile -->
+<div class="w-full h-24 rounded-lg bg-tertiary-fixed/30 flex flex-col items-center justify-center relative overflow-hidden mb-space-xs">
+<div class="flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-[48px] text-tertiary" style="font-variation-settings: 'FILL' 1;">folder_zip</span>
+</div>
+<span class="absolute bottom-1 right-1 px-1.5 py-0.5 rounded bg-tertiary text-on-tertiary font-label-sm text-label-sm font-semibold tracking-wider">ZIP</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-on-surface truncate font-semibold">Source_Code_Backup.zip</span>
+<div class="flex items-center justify-between font-code-sm text-code-sm text-on-surface-variant">
+<span>110 MB</span>
+<span>Encrypted</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Ambient Empty / Drop Zone Hint (Delight Element) -->
+<div class="px-margin pt-space-xs pb-space-lg flex items-center justify-center">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm opacity-60">
+<span class="material-symbols-outlined text-[16px]">touch_app</span>
+<span>Tap to select • Long-press for Windows context menu</span>
+</div>
+</div>
+<!-- Bottom Floating Fluent Selection Dock -->
+<div class="sticky bottom-2 px-margin z-30 pointer-events-none mb-space-sm">
+<div class="pointer-events-auto bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-xl px-space-md py-space-sm flex items-center justify-between">
+<!-- Selection State Display -->
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-title-md text-title-md text-on-surface font-semibold" id="status-selection-count">8 items</span>
+<span class="text-outline-variant">•</span>
+<span class="font-label-md text-label-md text-primary font-medium" id="status-selection-summary">1 item selected (14.2 MB)</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Work Projects Directory</span>
+</div>
+</div>
+<!-- Floating Quick Actions -->
+<div class="flex items-center gap-space-xs">
+<button aria-label="Share Selected" class="w-9 h-9 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+<button aria-label="Item Properties" class="w-9 h-9 rounded-lg bg-primary-container text-on-primary flex items-center justify-center transition-transform active:scale-95 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Interactive Logic for Tile Selection & Delight Feedback -->
+<script>
+    (function initFileExplorerGrid() {
+      const cards = document.querySelectorAll('.file-card');
+      const selectionSummary = document.getElementById('status-selection-summary');
+      const toggleSelectAll = document.getElementById('toggle-select-all');
+
+      function updateStatus() {
+        const selected = document.querySelectorAll('.file-card[data-selected="true"]');
+        let totalSize = 0;
+        selected.forEach(card => {
+          totalSize += parseFloat(card.getAttribute('data-size') || 0);
+        });
+
+        if (selected.length === 0) {
+          selectionSummary.textContent = 'None selected';
+          selectionSummary.className = 'font-label-md text-label-md text-on-surface-variant font-medium';
+        } else if (selected.length === 1) {
+          const sizeText = totalSize > 0 ? ` (${totalSize.toFixed(1)} MB)` : '';
+          selectionSummary.textContent = `1 item selected${sizeText}`;
+          selectionSummary.className = 'font-label-md text-label-md text-primary font-medium';
+        } else {
+          const sizeText = totalSize > 0 ? ` (${totalSize.toFixed(1)} MB)` : '';
+          selectionSummary.textContent = `${selected.length} items selected${sizeText}`;
+          selectionSummary.className = 'font-label-md text-label-md text-primary font-medium';
+        }
+      }
+
+      cards.forEach(card => {
+        card.addEventListener('click', (e) => {
+          // Toggle selection
+          const isSelected = card.getAttribute('data-selected') === 'true';
+          if (isSelected) {
+            card.removeAttribute('data-selected');
+            card.classList.remove('bg-primary-fixed/20');
+            card.classList.add('bg-surface-container-lowest');
+            // Remove check indicator if any
+            const check = card.querySelector('.file-check-badge');
+            if (check) check.remove();
+            const bar = card.querySelector('.accent-bar');
+            if (bar) bar.remove();
+          } else {
+            card.setAttribute('data-selected', 'true');
+            card.classList.remove('bg-surface-container-lowest');
+            card.classList.add('bg-primary-fixed/20');
+
+            if (!card.querySelector('.accent-bar')) {
+              const bar = document.createElement('div');
+              bar.className = 'accent-bar absolute left-0 top-3 bottom-3 w-1 bg-primary-container rounded-r-full';
+              card.appendChild(bar);
+            }
+          }
+          updateStatus();
+        });
+      });
+
+      if (toggleSelectAll) {
+        toggleSelectAll.addEventListener('click', () => {
+          const selected = document.querySelectorAll('.file-card[data-selected="true"]');
+          const shouldSelectAll = selected.length < cards.length;
+          
+          cards.forEach(card => {
+            if (shouldSelectAll) {
+              card.setAttribute('data-selected', 'true');
+              card.classList.remove('bg-surface-container-lowest');
+              card.classList.add('bg-primary-fixed/20');
+              if (!card.querySelector('.accent-bar')) {
+                const bar = document.createElement('div');
+                bar.className = 'accent-bar absolute left-0 top-3 bottom-3 w-1 bg-primary-container rounded-r-full';
+                card.appendChild(bar);
+              }
+            } else {
+              card.removeAttribute('data-selected');
+              card.classList.remove('bg-primary-fixed/20');
+              card.classList.add('bg-surface-container-lowest');
+              const bar = card.querySelector('.accent-bar');
+              if (bar) bar.remove();
+            }
+          });
+          updateStatus();
+        });
+      }
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.06)]" data-active-classes="text-primary font-semibold"><div class="flex justify-around items-center h-16 px-space-sm"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="file-explorer---home" href="#"><span class="material-symbols-outlined text-[22px]">home</span><span class="font-label-sm text-label-sm mt-0.5">Home</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] transition-colors text-primary font-semibold" data-path="grid-file-browser" href="#"><span class="material-symbols-outlined text-[22px]">hard_drive</span><span class="font-label-sm text-label-sm mt-0.5">Storage</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="network-&amp;-cloud-drives" href="#"><span class="material-symbols-outlined text-[22px]">cloud_sync</span><span class="font-label-sm text-label-sm mt-0.5">Network</span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] text-on-surface-variant hover:text-on-surface transition-colors" data-path="explorer-settings" href="#"><span class="material-symbols-outlined text-[22px]">settings</span><span class="font-label-sm text-label-sm mt-0.5">Settings</span></a></div></nav></body></html>
