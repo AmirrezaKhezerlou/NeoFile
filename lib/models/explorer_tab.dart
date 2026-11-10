@@ -5,6 +5,7 @@ class ExplorerTab {
   String currentPath; // '' represents 'This PC' (Home)
   final List<String> history;
   int historyIndex;
+  final Map<String, double> _scrollOffsets = {};
 
   ExplorerTab({
     required this.id,
@@ -14,13 +15,27 @@ class ExplorerTab {
   }) : history = history ?? (currentPath.isEmpty ? [''] : ['', currentPath]);
 
   String get title {
-    if (currentPath.isEmpty) return 'Home';
+    if (currentPath.isEmpty ||
+        currentPath == '/storage/emulated/0' ||
+        currentPath == '/storage/emulated/0/' ||
+        currentPath == '0') {
+      return 'Home';
+    }
     final name = p.basename(currentPath);
-    return name.isEmpty ? 'Root' : name;
+    if (name == '0' || name.isEmpty) return 'Home';
+    return name;
   }
 
   bool get canGoBack => historyIndex > 0;
   bool get canGoForward => historyIndex < history.length - 1;
+
+  void saveScrollOffset(String path, double offset) {
+    _scrollOffsets[path] = offset;
+  }
+
+  double getScrollOffset(String path) {
+    return _scrollOffsets[path] ?? 0.0;
+  }
 
   void navigateTo(String path) {
     if (currentPath == path) return;

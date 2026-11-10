@@ -6,6 +6,7 @@ import '../models/file_item.dart';
 import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/file_service.dart';
+import '../services/media_launcher.dart';
 import '../theme/fluent_theme.dart';
 import '../widgets/fluent_context_menu.dart';
 import '../widgets/fluent_file_icons.dart';
@@ -354,7 +355,7 @@ class HomeView extends StatelessWidget {
         final item = FileItem.fromFileSystemEntity(file);
 
         return InkWell(
-          onTap: () => explorer.openFile(item.path),
+          onTap: () => MediaLauncher.openItem(context, item),
           borderRadius: BorderRadius.circular(6),
           child: Container(
             margin: const EdgeInsets.only(bottom: 4),
@@ -463,7 +464,7 @@ class HomeView extends StatelessWidget {
               explorer.navigateTo(item.path);
             } else {
               settings.addRecentFile(item.path);
-              explorer.openFile(item.path);
+              MediaLauncher.openItem(context, item);
             }
           },
           onLongPress: () => FluentContextMenu.show(context, item),

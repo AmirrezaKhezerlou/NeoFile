@@ -32,6 +32,10 @@ class MainActivity : FlutterActivity() {
     private val INTENT_EVENT_CHANNEL = "com.neofile.app/file_intent_events"
     private val NOTIFICATION_CHANNEL_ID = "neofile_transfers"
     private val NOTIFICATION_ID = 1001
+    private val MCP_NOTIFICATION_CHANNEL_ID = "neofile_mcp"
+    private val MCP_NOTIFICATION_ID = 1002
+    private val FTP_NOTIFICATION_CHANNEL_ID = "neofile_ftp"
+    private val FTP_NOTIFICATION_ID = 1003
 
     private var storageEventSink: EventChannel.EventSink? = null
     private var intentEventSink: EventChannel.EventSink? = null
@@ -51,9 +55,34 @@ class MainActivity : FlutterActivity() {
             }
         }
 
-        if (intent.getStringExtra("action") == "SHOW_TRANSFER_SHEET") {
+        CancelReceiver.onMcpStopListener = {
+            runOnUiThread {
+                storageMethodChannel?.invokeMethod("mcpStop", null)
+            }
+        }
+
+        CancelReceiver.onMcpPauseListener = {
+            runOnUiThread {
+                storageMethodChannel?.invokeMethod("mcpPause", null)
+            }
+        }
+
+        CancelReceiver.onMcpResumeListener = {
+            runOnUiThread {
+                storageMethodChannel?.invokeMethod("mcpResume", null)
+            }
+        }
+
+        CancelReceiver.onFtpStopListener = {
+            runOnUiThread {
+                storageMethodChannel?.invokeMethod("ftpStop", null)
+            }
+        }
+
+        val initialAction = intent.getStringExtra("action") ?: intent.action
+        if (initialAction != null && (initialAction.startsWith("OPEN_") || initialAction == "SHOW_TRANSFER_SHEET")) {
             window?.decorView?.post {
-                storageMethodChannel?.invokeMethod("showTransferSheet", null)
+                storageMethodChannel?.invokeMethod("openAction", initialAction)
             }
         }
     }
@@ -68,6 +97,18 @@ class MainActivity : FlutterActivity() {
             }
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             notificationManager?.createNotificationChannel(channel)
+
+            val mcpChannel = NotificationChannel(MCP_NOTIFICATION_CHANNEL_ID, "MCP Server Service", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Shows live status and controls for NeoFile MCP Server"
+                setShowBadge(false)
+            }
+            notificationManager?.createNotificationChannel(mcpChannel)
+
+            val ftpChannel = NotificationChannel(FTP_NOTIFICATION_CHANNEL_ID, "FTP Server Service", NotificationManager.IMPORTANCE_LOW).apply {
+                description = "Shows active FTP server connection details and disconnect control"
+                setShowBadge(false)
+            }
+            notificationManager?.createNotificationChannel(ftpChannel)
         }
     }
 
@@ -139,13 +180,178 @@ class MainActivity : FlutterActivity() {
         } catch (_: Exception) {}
     }
 
+    private fun updateMcpNotification(title: String, message: String, isPaused: Boolean) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+            }
+
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, launchIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            val iconRes = if (applicationInfo.icon != 0) applicationInfo.icon else android.R.drawable.stat_notify_sync
+
+            val builder = NotificationCompat.Builder(this, MCP_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(iconRes)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+
+            val toggleIntent = Intent(this, CancelReceiver::class.java).apply {
+                action = if (isPaused) CancelReceiver.ACTION_MCP_RESUME else CancelReceiver.ACTION_MCP_PAUSE
+                setPackage(packageName)
+            }
+            val togglePendingIntent = PendingIntent.getBroadcast(
+                this,
+                102,
+                toggleIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            builder.addAction(
+                if (isPaused) android.R.drawable.ic_media_play else android.R.drawable.ic_media_pause,
+                if (isPaused) "Resume" else "Pause",
+                togglePendingIntent
+            )
+
+            val stopIntent = Intent(this, CancelReceiver::class.java).apply {
+                action = CancelReceiver.ACTION_MCP_STOP
+                setPackage(packageName)
+            }
+            val stopPendingIntent = PendingIntent.getBroadcast(
+                this,
+                103,
+                stopIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            builder.addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "Stop",
+                stopPendingIntent
+            )
+
+            NotificationManagerCompat.from(this).notify(MCP_NOTIFICATION_ID, builder.build())
+        } catch (_: Exception) {}
+    }
+
+    private fun cancelMcpNotification() {
+        try {
+            NotificationManagerCompat.from(this).cancel(MCP_NOTIFICATION_ID)
+        } catch (_: Exception) {}
+    }
+
+    private fun updateFtpNotification(title: String, message: String) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    return
+                }
+            }
+
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("action", "OPEN_FTP_SCREEN")
+            }
+            val pendingIntent = PendingIntent.getActivity(
+                this, 0, launchIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
+            val iconRes = if (applicationInfo.icon != 0) applicationInfo.icon else android.R.drawable.stat_notify_sync
+
+            val builder = NotificationCompat.Builder(this, FTP_NOTIFICATION_CHANNEL_ID)
+                .setSmallIcon(iconRes)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setOnlyAlertOnce(true)
+                .setContentIntent(pendingIntent)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+
+            val stopIntent = Intent(this, CancelReceiver::class.java).apply {
+                action = CancelReceiver.ACTION_FTP_STOP
+                setPackage(packageName)
+            }
+            val stopPendingIntent = PendingIntent.getBroadcast(
+                this,
+                104,
+                stopIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE else PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            builder.addAction(
+                android.R.drawable.ic_menu_close_clear_cancel,
+                "Disconnect",
+                stopPendingIntent
+            )
+
+            NotificationManagerCompat.from(this).notify(FTP_NOTIFICATION_ID, builder.build())
+        } catch (_: Exception) {}
+    }
+
+    private fun cancelFtpNotification() {
+        try {
+            NotificationManagerCompat.from(this).cancel(FTP_NOTIFICATION_ID)
+        } catch (_: Exception) {}
+    }
+
+    private fun updateWidgetData(args: Map<*, *>?) {
+        try {
+            val prefs = getSharedPreferences("neofile_widget_prefs", Context.MODE_PRIVATE)
+            val editor = prefs.edit()
+            if (args != null) {
+                if (args.containsKey("mcp_running")) editor.putBoolean("mcp_running", args["mcp_running"] as? Boolean ?: false)
+                if (args.containsKey("mcp_paused")) editor.putBoolean("mcp_paused", args["mcp_paused"] as? Boolean ?: false)
+                if (args.containsKey("mcp_url")) editor.putString("mcp_url", args["mcp_url"] as? String ?: "")
+                if (args.containsKey("ftp_running")) editor.putBoolean("ftp_running", args["ftp_running"] as? Boolean ?: false)
+                if (args.containsKey("ftp_url")) editor.putString("ftp_url", args["ftp_url"] as? String ?: "")
+                if (args.containsKey("ftp_connections")) editor.putInt("ftp_connections", args["ftp_connections"] as? Int ?: 0)
+            }
+            editor.apply()
+
+            StorageAppWidgetProvider.updateAll(this)
+            McpAppWidgetProvider.updateAll(this)
+            FtpAppWidgetProvider.updateAll(this)
+        } catch (_: Exception) {}
+    }
+
+    private fun pinWidget(widgetType: String, result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val appWidgetManager = getSystemService(android.appwidget.AppWidgetManager::class.java)
+            if (appWidgetManager.isRequestPinAppWidgetSupported) {
+                val provider = when (widgetType.lowercase()) {
+                    "storage" -> android.content.ComponentName(this, StorageAppWidgetProvider::class.java)
+                    "mcp" -> android.content.ComponentName(this, McpAppWidgetProvider::class.java)
+                    "ftp" -> android.content.ComponentName(this, FtpAppWidgetProvider::class.java)
+                    else -> null
+                }
+                if (provider != null) {
+                    appWidgetManager.requestPinAppWidget(provider, null, null)
+                    result.success(true)
+                    return
+                }
+            }
+        }
+        result.success(false)
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
 
-        val action = intent.getStringExtra("action")
-        if (action == "SHOW_TRANSFER_SHEET") {
-            storageMethodChannel?.invokeMethod("showTransferSheet", null)
+        val action = intent.getStringExtra("action") ?: intent.action
+        if (action != null && (action.startsWith("OPEN_") || action == "SHOW_TRANSFER_SHEET")) {
+            storageMethodChannel?.invokeMethod("openAction", action)
         }
 
         val path = extractPathFromIntent(intent)
@@ -182,12 +388,54 @@ class MainActivity : FlutterActivity() {
                         cancelProgressNotification()
                         result.success(true)
                     }
+                    "showMcpNotification" -> {
+                        val title = call.argument<String>("title") ?: "NeoFile MCP Server"
+                        val message = call.argument<String>("message") ?: "Running"
+                        val isPaused = call.argument<Boolean>("isPaused") ?: false
+                        updateMcpNotification(title, message, isPaused)
+                        result.success(true)
+                    }
+                    "cancelMcpNotification" -> {
+                        cancelMcpNotification()
+                        result.success(true)
+                    }
+                    "showFtpNotification" -> {
+                        val title = call.argument<String>("title") ?: "NeoFile FTP Server"
+                        val message = call.argument<String>("message") ?: "Running"
+                        updateFtpNotification(title, message)
+                        result.success(true)
+                    }
+                    "cancelFtpNotification" -> {
+                        cancelFtpNotification()
+                        result.success(true)
+                    }
+                    "updateWidgetData" -> {
+                        val map = call.arguments as? Map<*, *>
+                        updateWidgetData(map)
+                        result.success(true)
+                    }
+                    "pinWidget" -> {
+                        val widgetType = call.argument<String>("type") ?: ""
+                        pinWidget(widgetType, result)
+                    }
                     "openFile" -> {
                         val path = call.argument<String>("path") ?: ""
                         val mimeType = call.argument<String>("mimeType")
                         val useChooser = call.argument<Boolean>("useChooser") ?: false
                         val success = openFileWithIntent(path, mimeType, useChooser)
                         result.success(success)
+                    }
+                    "openUrl" -> {
+                        val url = call.argument<String>("url") ?: ""
+                        try {
+                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            startActivity(browserIntent)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.success(false)
+                        }
                     }
                     else -> result.notImplemented()
                 }
@@ -591,7 +839,13 @@ class MainActivity : FlutterActivity() {
 
     override fun onDestroy() {
         CancelReceiver.onCancelListener = null
+        CancelReceiver.onMcpStopListener = null
+        CancelReceiver.onMcpPauseListener = null
+        CancelReceiver.onMcpResumeListener = null
+        CancelReceiver.onFtpStopListener = null
         cancelProgressNotification()
+        cancelMcpNotification()
+        cancelFtpNotification()
         unregisterMediaReceiver()
         super.onDestroy()
     }

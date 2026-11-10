@@ -42,6 +42,48 @@ class FileService {
   static const EventChannel _storageEventChannel = EventChannel('com.neofile.app/storage_events');
   static const EventChannel _intentEventChannel = EventChannel('com.neofile.app/file_intent_events');
   static VoidCallback? onCancelTransferRequested;
+  static VoidCallback? onShowTransferSheetRequested;
+  static VoidCallback? onMcpStop;
+  static VoidCallback? onMcpPause;
+  static VoidCallback? onMcpResume;
+  static VoidCallback? onFtpStop;
+  static void Function(String action)? onOpenAction;
+
+  static bool _handlerInitialized = false;
+
+  static void ensureHandlerInitialized() {
+    if (_handlerInitialized) return;
+    _handlerInitialized = true;
+    _storageChannel.setMethodCallHandler((call) async {
+      switch (call.method) {
+        case 'cancelTransfer':
+          onCancelTransferRequested?.call();
+          break;
+        case 'showTransferSheet':
+          onShowTransferSheetRequested?.call();
+          break;
+        case 'mcpStop':
+          onMcpStop?.call();
+          break;
+        case 'mcpPause':
+          onMcpPause?.call();
+          break;
+        case 'mcpResume':
+          onMcpResume?.call();
+          break;
+        case 'ftpStop':
+          onFtpStop?.call();
+          break;
+        case 'openAction':
+          final action = call.arguments as String?;
+          if (action != null) onOpenAction?.call(action);
+          break;
+        case 'requestFrame':
+          // Warm up frame if binding available
+          break;
+      }
+    });
+  }
 
   static String formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
@@ -80,6 +122,45 @@ class FileService {
   static Future<void> cancelNotification() async {
     try {
       await _storageChannel.invokeMethod('cancelNotification');
+    } catch (_) {}
+  }
+
+  static Future<void> showFtpNotification({
+    required String title,
+    required String message,
+  }) async {
+    try {
+      await _storageChannel.invokeMethod('showFtpNotification', {
+        'title': title,
+        'message': message,
+      });
+    } catch (_) {}
+  }
+
+  static Future<void> cancelFtpNotification() async {
+    try {
+      await _storageChannel.invokeMethod('cancelFtpNotification');
+    } catch (_) {}
+  }
+
+  static Future<void> updateWidgetData(Map<String, dynamic> data) async {
+    try {
+      await _storageChannel.invokeMethod('updateWidgetData', data);
+    } catch (_) {}
+  }
+
+  static Future<bool> pinWidget(String type) async {
+    try {
+      final res = await _storageChannel.invokeMethod<bool>('pinWidget', {'type': type});
+      return res ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> openUrl(String url) async {
+    try {
+      await _storageChannel.invokeMethod('openUrl', {'url': url});
     } catch (_) {}
   }
 

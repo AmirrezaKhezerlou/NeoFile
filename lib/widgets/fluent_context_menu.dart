@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/file_item.dart';
 import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/media_launcher.dart';
 import '../theme/fluent_theme.dart';
 import 'file_properties_sheet.dart';
 
@@ -14,61 +15,85 @@ class FluentContextMenu {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return Container(
-          margin: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: colors.cardSurface,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: colors.border, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.15),
-                blurRadius: 16,
-                offset: const Offset(0, 4),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.82,
               ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Top Item Info
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: Row(
-                  children: [
-                    Icon(
-                      item.isDirectory ? Icons.folder : Icons.insert_drive_file,
-                      size: 20,
-                      color: item.isDirectory ? const Color(0xFFFFB900) : colors.primary,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13.5,
-                              fontWeight: FontWeight.w600,
-                              color: colors.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            item.formatSize(),
-                            style: TextStyle(fontSize: 11, color: colors.textSecondary),
-                          ),
-                        ],
-                      ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.cardSurface,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: colors.border, width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 18,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-              ),
-              Divider(height: 1, color: colors.borderSubtle),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Subtle drag indicator handle
+                        Center(
+                          child: Container(
+                            width: 32,
+                            height: 4,
+                            margin: const EdgeInsets.only(top: 8, bottom: 2),
+                            decoration: BoxDecoration(
+                              color: colors.textMuted.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+
+                        // Top Item Info
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                item.isDirectory ? Icons.folder : Icons.insert_drive_file,
+                                size: 20,
+                                color: item.isDirectory ? const Color(0xFFFFB900) : colors.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: colors.textPrimary,
+                                      ),
+                                    ),
+                                    Text(
+                                      item.formatSize(),
+                                      style: TextStyle(fontSize: 11, color: colors.textSecondary),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Divider(height: 1, color: colors.borderSubtle),
 
               // Action Buttons
               _buildMenuItem(
@@ -80,7 +105,8 @@ class FluentContextMenu {
                   if (item.isDirectory) {
                     explorer.navigateTo(item.path);
                   } else {
-                    explorer.openFile(item.path);
+                    settings.addRecentFile(item.path);
+                    MediaLauncher.openItem(context, item);
                   }
                 },
                 colors: colors,
@@ -199,10 +225,15 @@ class FluentContextMenu {
                 },
                 colors: colors,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 8),
             ],
           ),
-        );
+        ),
+      ),
+    ),
+  ),
+),
+);
       },
     );
   }
@@ -285,6 +316,11 @@ class FluentContextMenu {
     SettingsProvider settings,
     FileItem item,
   ) {
+    final pathsToDelete = explorer.selectedPaths.contains(item.path)
+        ? explorer.selectedPaths.toList()
+        : [item.path];
+    final isMultiple = pathsToDelete.length > 1;
+
     showDialog(
       context: context,
       builder: (ctx) {
@@ -292,8 +328,15 @@ class FluentContextMenu {
         return AlertDialog(
           backgroundColor: colors.cardSurface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: Text('Delete item', style: TextStyle(fontSize: 16, color: colors.textPrimary)),
-          content: Text('Are you sure you want to delete "${item.name}"?'),
+          title: Text(
+            isMultiple ? 'Delete items' : 'Delete item',
+            style: TextStyle(fontSize: 16, color: colors.textPrimary),
+          ),
+          content: Text(
+            isMultiple
+                ? 'Are you sure you want to delete ${pathsToDelete.length} selected items?'
+                : 'Are you sure you want to delete "${item.name}"?',
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -303,7 +346,7 @@ class FluentContextMenu {
               style: FilledButton.styleFrom(backgroundColor: colors.error),
               onPressed: () async {
                 Navigator.pop(ctx);
-                await explorer.deleteSelected(showHidden: settings.showHiddenFiles);
+                await explorer.deleteItems(pathsToDelete, showHidden: settings.showHiddenFiles);
               },
               child: const Text('Delete'),
             ),

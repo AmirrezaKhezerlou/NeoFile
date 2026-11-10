@@ -60,7 +60,45 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.neofile.app.ACTION_CANCEL_TRANSFER" />
+                <action android:name="com.neofile.app.ACTION_MCP_STOP" />
+                <action android:name="com.neofile.app.ACTION_MCP_PAUSE" />
+                <action android:name="com.neofile.app.ACTION_MCP_RESUME" />
+                <action android:name="com.neofile.app.ACTION_FTP_STOP" />
             </intent-filter>
+        </receiver>
+
+        <!-- Home Screen Widgets -->
+        <receiver
+            android:name=".StorageAppWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_storage_info" />
+        </receiver>
+
+        <receiver
+            android:name=".McpAppWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_mcp_info" />
+        </receiver>
+
+        <receiver
+            android:name=".FtpAppWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_ftp_info" />
         </receiver>
 
         <!-- Don't delete the meta-data below.

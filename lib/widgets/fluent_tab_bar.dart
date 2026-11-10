@@ -4,11 +4,11 @@ import '../providers/explorer_provider.dart';
 import '../theme/fluent_theme.dart';
 
 class FluentTabBar extends StatelessWidget {
-  final VoidCallback onOpenSettings;
+  final VoidCallback onOpenMenu;
 
   const FluentTabBar({
     super.key,
-    required this.onOpenSettings,
+    required this.onOpenMenu,
   });
 
   @override
@@ -56,12 +56,12 @@ class FluentTabBar extends StatelessWidget {
               ),
             ),
           ),
-          // More / Settings Button
+          // Hamburger / Navigation Menu Button
           _buildIconButton(
             context,
-            icon: Icons.settings_outlined,
-            tooltip: 'Settings',
-            onTap: onOpenSettings,
+            icon: Icons.menu,
+            tooltip: 'Navigation Menu',
+            onTap: onOpenMenu,
             colors: colors,
           ),
           const SizedBox(width: 4),

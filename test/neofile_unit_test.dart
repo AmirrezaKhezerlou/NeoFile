@@ -23,7 +23,7 @@ void main() {
       final tab = ExplorerTab(id: 'tab_test');
       tab.navigateTo('/storage/emulated/0');
       expect(tab.currentPath, '/storage/emulated/0');
-      expect(tab.title, '0');
+      expect(tab.title, 'Home');
       expect(tab.canGoBack, true);
       expect(tab.canGoForward, false);
 

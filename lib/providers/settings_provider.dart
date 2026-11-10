@@ -1,4 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/file_service.dart';
 
@@ -18,6 +21,12 @@ class SettingsProvider with ChangeNotifier {
   bool _showCheckBoxes = true;
   bool _compactView = false;
   int _gridColumns = 3;
+  bool _useInternalMediaViewer = true;
+  double _fontSizeScale = 1.0;
+  bool _showListDateModified = true;
+  bool _showListFileSize = true;
+  bool _singleLineListItems = false;
+  int _listItemDensity = 1;
   Set<String> _pinnedPaths = {};
   List<String> _recentFiles = [];
 
@@ -32,6 +41,12 @@ class SettingsProvider with ChangeNotifier {
   bool get showCheckBoxes => _showCheckBoxes;
   bool get compactView => _compactView;
   int get gridColumns => _gridColumns;
+  bool get useInternalMediaViewer => _useInternalMediaViewer;
+  double get fontSizeScale => _fontSizeScale;
+  bool get showListDateModified => _showListDateModified;
+  bool get showListFileSize => _showListFileSize;
+  bool get singleLineListItems => _singleLineListItems;
+  int get listItemDensity => _listItemDensity;
   Set<String> get pinnedPaths => _pinnedPaths;
   List<String> get recentFiles => _recentFiles;
 
@@ -46,23 +61,27 @@ class SettingsProvider with ChangeNotifier {
   void _applyPrefs(SharedPreferences prefs) {
     final prefStr = prefs.getString('theme_preference');
     if (prefStr != null) {
-      if (prefStr == 'amoled') {
+      final norm = prefStr.toLowerCase();
+      if (norm.contains('amoled')) {
         _themePreference = AppThemePreference.amoled;
-      } else if (prefStr == 'dark') {
+      } else if (norm.contains('dark')) {
         _themePreference = AppThemePreference.dark;
-      } else if (prefStr == 'light') {
+      } else if (norm.contains('light')) {
         _themePreference = AppThemePreference.light;
       } else {
         _themePreference = AppThemePreference.system;
       }
     } else {
       final themeStr = prefs.getString('theme_mode');
-      if (themeStr == 'dark') {
-        _themePreference = AppThemePreference.dark;
-      } else if (themeStr == 'light') {
-        _themePreference = AppThemePreference.light;
-      } else {
-        _themePreference = AppThemePreference.system;
+      if (themeStr != null) {
+        final normTheme = themeStr.toLowerCase();
+        if (normTheme.contains('dark')) {
+          _themePreference = AppThemePreference.dark;
+        } else if (normTheme.contains('light')) {
+          _themePreference = AppThemePreference.light;
+        } else {
+          _themePreference = AppThemePreference.system;
+        }
       }
     }
     _themeMode = _themePreference == AppThemePreference.system
@@ -83,6 +102,12 @@ class SettingsProvider with ChangeNotifier {
     _showCheckBoxes = prefs.getBool('show_check_boxes') ?? true;
     _compactView = prefs.getBool('compact_view') ?? false;
     _gridColumns = prefs.getInt('grid_columns') ?? 3;
+    _useInternalMediaViewer = prefs.getBool('use_internal_media_viewer') ?? true;
+    _fontSizeScale = prefs.getDouble('font_size_scale') ?? 1.0;
+    _showListDateModified = prefs.getBool('show_list_date_modified') ?? true;
+    _showListFileSize = prefs.getBool('show_list_file_size') ?? true;
+    _singleLineListItems = prefs.getBool('single_line_list_items') ?? false;
+    _listItemDensity = prefs.getInt('list_item_density') ?? 1;
 
     final sortFieldStr = prefs.getString('sort_field');
     if (sortFieldStr == 'dateModified') {
@@ -100,10 +125,62 @@ class SettingsProvider with ChangeNotifier {
     _recentFiles = prefs.getStringList('recent_files') ?? [];
   }
 
+  Future<void> ensureLoaded() async {
+    if (_prefs == null) {
+      await _loadSettings();
+    } else {
+      _applyPrefs(_prefs!);
+      await _applyBackupIfEmpty();
+    }
+  }
+
+  static Future<File?> _getBackupFile() async {
+    try {
+      final docDir = await getApplicationDocumentsDirectory();
+      return File(p.join(docDir.path, '.neofile_theme.txt'));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _saveThemeBackup(String themeName) async {
+    try {
+      final file = await _getBackupFile();
+      if (file != null) {
+        await file.writeAsString(themeName);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _applyBackupIfEmpty() async {
+    if (_themePreference == AppThemePreference.system) {
+      try {
+        final file = await _getBackupFile();
+        if (file != null && file.existsSync()) {
+          final content = file.readAsStringSync().trim().toLowerCase();
+          if (content.contains('light')) {
+            _themePreference = AppThemePreference.light;
+            _themeMode = ThemeMode.light;
+            notifyListeners();
+          } else if (content.contains('amoled')) {
+            _themePreference = AppThemePreference.amoled;
+            _themeMode = ThemeMode.dark;
+            notifyListeners();
+          } else if (content.contains('dark')) {
+            _themePreference = AppThemePreference.dark;
+            _themeMode = ThemeMode.dark;
+            notifyListeners();
+          }
+        }
+      } catch (_) {}
+    }
+  }
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _prefs = prefs;
     _applyPrefs(prefs);
+    await _applyBackupIfEmpty();
     notifyListeners();
   }
 
@@ -123,6 +200,7 @@ class SettingsProvider with ChangeNotifier {
           ? 'dark'
           : (pref == AppThemePreference.light ? 'light' : 'system'),
     );
+    await _saveThemeBackup(pref.name);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
@@ -183,6 +261,41 @@ class SettingsProvider with ChangeNotifier {
     await prefs.setInt('grid_columns', _gridColumns);
   }
 
+  Future<void> setFontSizeScale(double scale) async {
+    _fontSizeScale = scale.clamp(0.75, 1.4);
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setDouble('font_size_scale', _fontSizeScale);
+  }
+
+  Future<void> toggleShowListDateModified() async {
+    _showListDateModified = !_showListDateModified;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setBool('show_list_date_modified', _showListDateModified);
+  }
+
+  Future<void> toggleShowListFileSize() async {
+    _showListFileSize = !_showListFileSize;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setBool('show_list_file_size', _showListFileSize);
+  }
+
+  Future<void> toggleSingleLineListItems() async {
+    _singleLineListItems = !_singleLineListItems;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setBool('single_line_list_items', _singleLineListItems);
+  }
+
+  Future<void> setListItemDensity(int density) async {
+    _listItemDensity = density.clamp(0, 2);
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setInt('list_item_density', _listItemDensity);
+  }
+
   Future<void> togglePinPath(String path) async {
     if (_pinnedPaths.contains(path)) {
       _pinnedPaths.remove(path);
@@ -203,6 +316,13 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await _getPrefs();
     await prefs.setStringList('recent_files', _recentFiles);
+  }
+
+  Future<void> setUseInternalMediaViewer(bool value) async {
+    _useInternalMediaViewer = value;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setBool('use_internal_media_viewer', value);
   }
 
   Future<void> clearRecentFiles() async {

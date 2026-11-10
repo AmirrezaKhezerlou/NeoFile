@@ -1,11 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
+import '../services/cache_cleaner_service.dart';
 import '../services/permission_service.dart';
 import '../theme/fluent_theme.dart';
+import '../widgets/fluent_cache_cleanup_sheet.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final CacheCleanerService _cacheCleaner = CacheCleanerService.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _cacheCleaner.addListener(_onCacheChanged);
+    _cacheCleaner.analyzeCache();
+  }
+
+  void _onCacheChanged() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _cacheCleaner.removeListener(_onCacheChanged);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +87,37 @@ class SettingsScreen extends StatelessWidget {
               _buildDivider(colors),
               _buildGridColumnsSelector(context, settings, colors),
               _buildDivider(colors),
+              _buildFontSizeSelector(context, settings, colors),
+              _buildDivider(colors),
+              _buildListItemDensitySelector(context, settings, colors),
+              _buildDivider(colors),
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                title: Text('Single-line list view', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text('Display name, date, and size inline on a single row (default: off)', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                value: settings.singleLineListItems,
+                activeColor: colors.primary,
+                onChanged: (_) => settings.toggleSingleLineListItems(),
+              ),
+              _buildDivider(colors),
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                title: Text('Show Date modified in list', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text('Show modification date and time on list rows', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                value: settings.showListDateModified,
+                activeColor: colors.primary,
+                onChanged: (_) => settings.toggleShowListDateModified(),
+              ),
+              _buildDivider(colors),
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                title: Text('Show file size in list', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text('Show byte size for files on list rows', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                value: settings.showListFileSize,
+                activeColor: colors.primary,
+                onChanged: (_) => settings.toggleShowListFileSize(),
+              ),
+              _buildDivider(colors),
               SwitchListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
                 title: Text('Show hidden files and folders', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
@@ -101,31 +158,29 @@ class SettingsScreen extends StatelessWidget {
 
           const SizedBox(height: 18),
 
-          // Section 3: Storage & Cache
-          _buildSectionTitle('Storage & Cache', Icons.storage_outlined, colors),
+          // Section 3: Media & Playback
+          _buildSectionTitle('Media & Playback', Icons.play_circle_outline, colors),
           const SizedBox(height: 8),
           _buildCard(
             colors,
             children: [
-              ListTile(
-                leading: Icon(Icons.cleaning_services_outlined, color: colors.primary),
-                title: Text('Clear temporary files', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
-                subtitle: Text('Wipe internal cache and thumbnail buffers', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
-                trailing: FilledButton.tonal(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Thumbnail cache cleared')),
-                    );
-                  },
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    minimumSize: const Size(60, 32),
-                  ),
-                  child: const Text('Clear', style: TextStyle(fontSize: 11.5)),
-                ),
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                title: Text('Use built-in Windows media players', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text('Open Photos, Videos and Music inside NeoFile with Windows controls', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                value: settings.useInternalMediaViewer,
+                activeColor: colors.primary,
+                onChanged: (val) => settings.setUseInternalMediaViewer(val),
               ),
             ],
           ),
+
+          const SizedBox(height: 18),
+
+          // Section 3: Storage & Cache
+          _buildSectionTitle('Storage & Cache', Icons.storage_outlined, colors),
+          const SizedBox(height: 8),
+          _buildStorageCacheCard(context, colors),
 
           const SizedBox(height: 18),
 
@@ -212,6 +267,164 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildDivider(FluentColors colors) {
     return Divider(height: 1, color: colors.borderSubtle);
+  }
+
+  Widget _buildStorageCacheCard(BuildContext context, FluentColors colors) {
+    final analysis = _cacheCleaner.lastAnalysis;
+    final isAnalyzing = _cacheCleaner.isAnalyzing;
+    final isCleaning = _cacheCleaner.isCleaning;
+
+    final hasData = analysis != null && analysis.totalBytes > 0;
+    final formattedSize = analysis?.formattedTotal ?? (isAnalyzing ? 'Scanning...' : '0 B');
+    final fileCount = analysis?.totalFiles ?? 0;
+
+    return _buildCard(
+      colors,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: colors.primary.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(Icons.cleaning_services_outlined, color: colors.primary, size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Temporary Files & Cache',
+                              style: TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w600,
+                                color: colors.textPrimary,
+                              ),
+                            ),
+                            const Spacer(),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: hasData ? colors.primary.withOpacity(0.15) : colors.container,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: hasData ? colors.primary.withOpacity(0.3) : colors.borderSubtle,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Text(
+                                isAnalyzing ? 'Scanning...' : (hasData ? '$formattedSize ($fileCount files)' : 'Clean (0 B)'),
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: hasData ? colors.primary : colors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Analyze and wipe internal image caches, thumbnail buffers, and residual temporary downloads.',
+                          style: TextStyle(fontSize: 11.5, color: colors.textSecondary, height: 1.3),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (analysis != null && analysis.categories.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: analysis.categories.map((cat) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: colors.container,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: colors.borderSubtle, width: 0.8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(cat.icon, size: 12, color: colors.textSecondary),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${cat.title}: ${cat.formatBytes()}',
+                            style: TextStyle(fontSize: 10.5, color: colors.textSecondary),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+              const SizedBox(height: 12),
+              _buildDivider(colors),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: isAnalyzing || isCleaning ? null : () => _cacheCleaner.analyzeCache(),
+                    icon: isAnalyzing
+                        ? SizedBox(
+                            width: 12,
+                            height: 12,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: colors.textSecondary),
+                          )
+                        : Icon(Icons.refresh, size: 14, color: colors.textSecondary),
+                    label: Text(
+                      isAnalyzing ? 'Scanning' : 'Re-scan',
+                      style: TextStyle(fontSize: 11.5, color: colors.textSecondary),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: colors.borderSubtle),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: isCleaning
+                        ? null
+                        : () async {
+                            await FluentCacheCleanupSheet.show(context);
+                            _cacheCleaner.analyzeCache();
+                          },
+                    icon: const Icon(Icons.auto_delete_outlined, size: 14),
+                    label: Text(
+                      hasData ? 'Clean Storage ($formattedSize)' : 'Clean Storage',
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      minimumSize: const Size(0, 32),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildThemeSelector(
@@ -386,6 +599,139 @@ class SettingsScreen extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFontSizeSelector(
+    BuildContext context,
+    SettingsProvider settings,
+    FluentColors colors,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Font Size Scale', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+              Text(
+                '${(settings.fontSizeScale * 100).toInt()}%',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.primary),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _buildPillOption(
+                label: '85%',
+                isSelected: (settings.fontSizeScale - 0.85).abs() < 0.04,
+                onTap: () => settings.setFontSizeScale(0.85),
+                colors: colors,
+              ),
+              const SizedBox(width: 6),
+              _buildPillOption(
+                label: '100%',
+                isSelected: (settings.fontSizeScale - 1.0).abs() < 0.04,
+                onTap: () => settings.setFontSizeScale(1.0),
+                colors: colors,
+              ),
+              const SizedBox(width: 6),
+              _buildPillOption(
+                label: '115%',
+                isSelected: (settings.fontSizeScale - 1.15).abs() < 0.04,
+                onTap: () => settings.setFontSizeScale(1.15),
+                colors: colors,
+              ),
+              const SizedBox(width: 6),
+              _buildPillOption(
+                label: '130%',
+                isSelected: (settings.fontSizeScale - 1.30).abs() < 0.04,
+                onTap: () => settings.setFontSizeScale(1.30),
+                colors: colors,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildListItemDensitySelector(
+    BuildContext context,
+    SettingsProvider settings,
+    FluentColors colors,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('List Item Density / Size', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              _buildPillOption(
+                label: 'Compact',
+                isSelected: settings.listItemDensity == 0,
+                onTap: () => settings.setListItemDensity(0),
+                colors: colors,
+              ),
+              const SizedBox(width: 6),
+              _buildPillOption(
+                label: 'Standard',
+                isSelected: settings.listItemDensity == 1,
+                onTap: () => settings.setListItemDensity(1),
+                colors: colors,
+              ),
+              const SizedBox(width: 6),
+              _buildPillOption(
+                label: 'Comfortable',
+                isSelected: settings.listItemDensity == 2,
+                onTap: () => settings.setListItemDensity(2),
+                colors: colors,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPillOption({
+    required String label,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required FluentColors colors,
+  }) {
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: isSelected ? colors.primary.withOpacity(0.12) : colors.container,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isSelected ? colors.primary : colors.borderSubtle,
+              width: 1,
+            ),
+          ),
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              color: isSelected ? colors.primary : colors.textPrimary,
+            ),
+          ),
+        ),
       ),
     );
   }

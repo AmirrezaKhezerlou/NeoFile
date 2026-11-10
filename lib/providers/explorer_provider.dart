@@ -44,6 +44,8 @@ class ExplorerProvider with ChangeNotifier {
 
   StreamSubscription? _storageSubscription;
   StreamSubscription? _intentSubscription;
+  Timer? _autoRefreshTimer;
+  bool _isAutoRefreshing = false;
 
   // Getters
   List<ExplorerTab> get tabs => _tabs;
@@ -119,6 +121,62 @@ class ExplorerProvider with ChangeNotifier {
 
     _setupListeners();
     _handleInitialIntent();
+    _startAutoRefreshTimer();
+  }
+
+  void _startAutoRefreshTimer() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      _checkDirectoryChangesInBackground();
+    });
+  }
+
+  Future<void> _checkDirectoryChangesInBackground() async {
+    if (_isDisposed || _isLoading || _isAutoRefreshing || _isTransferring) return;
+    if (isHome || currentPath.isEmpty) return;
+    // Don't interrupt user if they have active multi-selection
+    if (hasSelection) return;
+
+    _isAutoRefreshing = true;
+    try {
+      final dir = Directory(currentPath);
+      if (!dir.existsSync()) {
+        _isAutoRefreshing = false;
+        return;
+      }
+
+      final latestItems = await FileService.listDirectory(
+        path: currentPath,
+        showHidden: _showHiddenFiles,
+        sortBy: _sortField,
+        ascending: _sortAscending,
+      );
+
+      if (!_isDisposed && !hasSelection && !_isLoading) {
+        if (_hasDirectoryChanged(_currentItems, latestItems)) {
+          _currentItems = latestItems;
+          notifyListeners();
+        }
+      }
+    } catch (_) {
+      // Silently ignore background read errors
+    } finally {
+      _isAutoRefreshing = false;
+    }
+  }
+
+  bool _hasDirectoryChanged(List<FileItem> oldItems, List<FileItem> newItems) {
+    if (oldItems.length != newItems.length) return true;
+    for (int i = 0; i < oldItems.length; i++) {
+      final oldItem = oldItems[i];
+      final newItem = newItems[i];
+      if (oldItem.path != newItem.path ||
+          oldItem.size != newItem.size ||
+          oldItem.modified.millisecondsSinceEpoch != newItem.modified.millisecondsSinceEpoch) {
+        return true;
+      }
+    }
+    return false;
   }
 
   void _setupListeners() {
@@ -184,6 +242,7 @@ class ExplorerProvider with ChangeNotifier {
   @override
   void dispose() {
     _isDisposed = true;
+    _autoRefreshTimer?.cancel();
     _notificationTimer?.cancel();
     _storageSubscription?.cancel();
     _intentSubscription?.cancel();
@@ -728,11 +787,24 @@ class ExplorerProvider with ChangeNotifier {
     return success;
   }
 
+  void saveCurrentScrollOffset(double offset) {
+    activeTab.saveScrollOffset(currentPath, offset);
+  }
+
+  double getSavedScrollOffset([String? path]) {
+    return activeTab.getScrollOffset(path ?? currentPath);
+  }
+
+  Future<void> deleteItems(List<String> paths, {bool showHidden = false}) async {
+    if (paths.isEmpty) return;
+    await FileService.deleteItems(paths);
+    _selectedPaths.removeWhere((p) => paths.contains(p));
+    await loadCurrentPath(showHidden: showHidden);
+  }
+
   Future<void> deleteSelected({bool showHidden = false}) async {
     if (_selectedPaths.isEmpty) return;
-    await FileService.deleteItems(_selectedPaths.toList());
-    clearSelection();
-    await loadCurrentPath(showHidden: showHidden);
+    await deleteItems(_selectedPaths.toList(), showHidden: showHidden);
   }
 
   Future<void> shareSelected() async {

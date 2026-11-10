@@ -120,6 +120,32 @@ class _FluentAddressBarState extends State<FluentAddressBar> {
             },
             colors: colors,
           ),
+
+          // Pin Current Folder Button
+          if (!explorer.isHome && explorer.currentPath.isNotEmpty) ...[
+            const SizedBox(width: 2),
+            _buildNavBtn(
+              context,
+              icon: settings.pinnedPaths.contains(explorer.currentPath)
+                  ? Icons.push_pin
+                  : Icons.push_pin_outlined,
+              enabled: true,
+              tooltip: settings.pinnedPaths.contains(explorer.currentPath)
+                  ? 'Unpin current folder'
+                  : 'Pin to Quick access',
+              onTap: () {
+                final isPinned = settings.pinnedPaths.contains(explorer.currentPath);
+                settings.togglePinPath(explorer.currentPath);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(isPinned ? 'Unpinned from Quick access' : 'Pinned to Quick access'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              colors: colors,
+            ),
+          ],
         ],
       ),
     );

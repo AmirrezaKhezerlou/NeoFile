@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
@@ -8,13 +7,16 @@ import '../services/permission_service.dart';
 import '../theme/fluent_theme.dart';
 import '../widgets/fluent_address_bar.dart';
 import '../widgets/fluent_command_ribbon.dart';
+import '../widgets/fluent_drawer.dart';
 import '../widgets/fluent_status_bar.dart';
 import '../widgets/fluent_tab_bar.dart';
 import '../widgets/fluent_transfer_bar.dart';
 import 'directory_view.dart';
+import 'ftp_server_screen.dart';
 import 'home_view.dart';
+import 'mcp_server_screen.dart';
 import 'permission_onboarding_screen.dart';
-import 'settings_screen.dart';
+import 'storage_analyzer_screen.dart';
 
 class MainExplorerScreen extends StatefulWidget {
   const MainExplorerScreen({super.key});
@@ -24,6 +26,7 @@ class MainExplorerScreen extends StatefulWidget {
 }
 
 class _MainExplorerScreenState extends State<MainExplorerScreen> with WidgetsBindingObserver {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _checkedPermission = false;
   bool _hasPermission = false;
 
@@ -33,20 +36,43 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> with WidgetsBin
     WidgetsBinding.instance.addObserver(this);
     _checkPermission();
 
-    const MethodChannel('com.neofile.app/storage').setMethodCallHandler((call) async {
-      if (call.method == 'showTransferSheet') {
-        if (mounted) {
-          TransferDetailsSheet.show(context);
-        }
-      } else if (call.method == 'cancelTransfer') {
-        FileService.onCancelTransferRequested?.call();
-        if (mounted) {
-          context.read<ExplorerProvider>().cancelTransfer();
-        }
-      } else if (call.method == 'requestFrame') {
-        WidgetsBinding.instance.scheduleWarmUpFrame();
+    FileService.ensureHandlerInitialized();
+    FileService.onShowTransferSheetRequested = () {
+      if (mounted) {
+        TransferDetailsSheet.show(context);
       }
-    });
+    };
+    FileService.onCancelTransferRequested = () {
+      if (mounted) {
+        context.read<ExplorerProvider>().cancelTransfer();
+      }
+    };
+    FileService.onOpenAction = (action) {
+      if (!mounted) return;
+      switch (action) {
+        case 'OPEN_STORAGE_ANALYZER':
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const StorageAnalyzerScreen()),
+          );
+          break;
+        case 'OPEN_MCP_SCREEN':
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const McpServerScreen()),
+          );
+          break;
+        case 'OPEN_FTP_SCREEN':
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const FtpServerScreen()),
+          );
+          break;
+        case 'SHOW_TRANSFER_SHEET':
+          TransferDetailsSheet.show(context);
+          break;
+      }
+    };
   }
 
   @override
@@ -117,6 +143,8 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> with WidgetsBin
         }
       },
       child: Scaffold(
+        key: _scaffoldKey,
+        drawer: const FluentNavigationDrawer(),
         backgroundColor: colors.canvas,
         floatingActionButton: (explorer.clipboard != null && !explorer.isHome)
             ? Row(
@@ -155,11 +183,8 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> with WidgetsBin
             children: [
               // 1. Top Windows 11 Tabs
               FluentTabBar(
-                onOpenSettings: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (ctx) => const SettingsScreen()),
-                  );
+                onOpenMenu: () {
+                  _scaffoldKey.currentState?.openDrawer();
                 },
               ),
 
