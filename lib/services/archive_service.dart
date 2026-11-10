@@ -164,21 +164,30 @@ class ArchiveService {
 
     if (archive.isEmpty) return false;
 
-    final dest = Directory(destinationDir);
+    final canonicalDest = p.canonicalize(destinationDir);
+    final dest = Directory(canonicalDest);
     await dest.create(recursive: true);
 
     for (int i = 0; i < archive.length; i++) {
       if (isCancelled?.call() == true) return false;
 
       final item = archive[i];
-      final itemPath = p.join(destinationDir, item.name);
+      // Sanitize item name: strip leading separators, resolve relative steps
+      final safeName = p.normalize(item.name).replaceAll(RegExp(r'^(/|\\)+'), '');
+      final itemPath = p.canonicalize(p.join(canonicalDest, safeName));
+
+      // Security: Zip Slip path traversal mitigation
+      if (!p.isWithin(canonicalDest, itemPath) && itemPath != canonicalDest) {
+        // Skip entry attempting to escape destination directory
+        continue;
+      }
 
       if (!item.isFile) {
         await Directory(itemPath).create(recursive: true);
       } else {
         final outFile = File(itemPath);
         await outFile.parent.create(recursive: true);
-        await outFile.writeAsBytes(item.content as List<int>);
+        await outFile.writeAsBytes(item.content);
       }
       onProgress?.call((i + 1) / archive.length, p.basename(item.name));
     }

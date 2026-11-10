@@ -427,14 +427,18 @@ class MainActivity : FlutterActivity() {
                     }
                     "openUrl" -> {
                         val url = call.argument<String>("url") ?: ""
-                        try {
-                            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                            }
-                            startActivity(browserIntent)
-                            result.success(true)
-                        } catch (e: Exception) {
+                        if (!url.startsWith("http://", ignoreCase = true) && !url.startsWith("https://", ignoreCase = true)) {
                             result.success(false)
+                        } else {
+                            try {
+                                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                startActivity(browserIntent)
+                                result.success(true)
+                            } catch (e: Exception) {
+                                result.success(false)
+                            }
                         }
                     }
                     else -> result.notImplemented()
@@ -720,7 +724,12 @@ class MainActivity : FlutterActivity() {
                 Uri.fromFile(file)
             }
         } catch (e: Exception) {
-            Uri.fromFile(file)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                // Prevent fatal FileUriExposedException on Android 7.0+ (API 24+)
+                return false
+            } else {
+                Uri.fromFile(file)
+            }
         }
 
         val intent = Intent(Intent.ACTION_VIEW).apply {

@@ -240,24 +240,33 @@ class McpServerService with ChangeNotifier {
     notifyListeners();
   }
 
+  bool _constantTimeEquals(String a, String b) {
+    if (a.length != b.length) return false;
+    int result = 0;
+    for (int i = 0; i < a.length; i++) {
+      result |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return result == 0;
+  }
+
   bool _isAuthorized(HttpRequest request) {
     if (!config.requireAuth) return true;
 
     final authHeader = request.headers.value('authorization');
-    if (authHeader != null) {
-      if (authHeader.startsWith('Bearer ') &&
-          authHeader.substring(7).trim() == config.authToken) {
+    if (authHeader != null && authHeader.startsWith('Bearer ')) {
+      final token = authHeader.substring(7).trim();
+      if (_constantTimeEquals(token, config.authToken)) {
         return true;
       }
     }
 
     final apiKeyHeader = request.headers.value('x-api-key');
-    if (apiKeyHeader != null && apiKeyHeader.trim() == config.authToken) {
+    if (apiKeyHeader != null && _constantTimeEquals(apiKeyHeader.trim(), config.authToken)) {
       return true;
     }
 
     final queryToken = request.uri.queryParameters['token'];
-    if (queryToken != null && queryToken.trim() == config.authToken) {
+    if (queryToken != null && _constantTimeEquals(queryToken.trim(), config.authToken)) {
       return true;
     }
 
@@ -267,7 +276,7 @@ class McpServerService with ChangeNotifier {
   bool _isPathWithinRoot(String path) {
     final canonicalTarget = p.canonicalize(path);
     final canonicalRoot = p.canonicalize(config.rootDirectory);
-    return canonicalTarget.startsWith(canonicalRoot);
+    return canonicalTarget == canonicalRoot || p.isWithin(canonicalRoot, canonicalTarget);
   }
 
   Future<void> _handleHttpRequest(HttpRequest request) async {
@@ -860,12 +869,22 @@ class McpServerService with ChangeNotifier {
           if (!_isPathWithinRoot(filePath)) {
             return _toolError('Access denied: target path is outside allowed root directory');
           }
+          final canonicalTarget = p.canonicalize(filePath);
+          final canonicalRoot = p.canonicalize(config.rootDirectory);
+          if (canonicalTarget == canonicalRoot) {
+            return _toolError('Access denied: Cannot delete server root directory');
+          }
+
           final entity = FileSystemEntity.typeSync(filePath);
           if (entity == FileSystemEntityType.file) {
             await File(filePath).delete();
             return _toolSuccess('File deleted: $filePath');
           } else if (entity == FileSystemEntityType.directory) {
-            await Directory(filePath).delete(recursive: true);
+            final dir = Directory(filePath);
+            if (dir.listSync(followLinks: false).isNotEmpty) {
+              return _toolError('Cannot delete non-empty directory. Empty directory contents first.');
+            }
+            await dir.delete(recursive: false);
             return _toolSuccess('Directory deleted: $filePath');
           } else {
             return _toolError('Entity not found: $filePath');

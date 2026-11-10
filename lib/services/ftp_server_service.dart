@@ -47,7 +47,7 @@ class FtpServerConfig {
 
   FtpServerConfig({
     this.port = 2121,
-    this.anonymous = true,
+    this.anonymous = false,
     this.username = 'neofile',
     this.password = '123456',
     String? rootDirectory,
@@ -313,7 +313,7 @@ class _FtpClientSession {
   bool _isSafePath(String targetPath) {
     final root = p.canonicalize(server.config.rootDirectory);
     final target = p.canonicalize(targetPath);
-    return target.startsWith(root);
+    return target == root || p.isWithin(root, target);
   }
 
   Future<Socket?> _openDataConnection() async {
@@ -478,14 +478,19 @@ class _FtpClientSession {
           _send('530 Login first.');
           return;
         }
-        _send('150 Here comes the directory listing.');
+        final targetPath = _resolveAbsolutePath(arg.isNotEmpty ? arg : '.');
+        if (!_isSafePath(targetPath)) {
+          _send('550 Access denied: Path outside root directory.');
+          return;
+        }
         final dataSocket = await _openDataConnection();
         if (dataSocket == null) {
           _send('425 Cannot open data connection');
           return;
         }
+        _send('150 Here comes the directory listing.');
 
-        final targetDir = Directory(_resolveAbsolutePath(arg.isNotEmpty ? arg : '.'));
+        final targetDir = Directory(targetPath);
         final buffer = StringBuffer();
         if (targetDir.existsSync()) {
           try {
@@ -506,9 +511,12 @@ class _FtpClientSession {
             }
           } catch (_) {}
         }
-        dataSocket.write(buffer.toString());
-        await dataSocket.flush();
-        await dataSocket.close();
+        try {
+          dataSocket.write(buffer.toString());
+          await dataSocket.flush();
+        } catch (_) {} finally {
+          try { await dataSocket.close(); } catch (_) {}
+        }
         _send('226 Directory send OK.');
         break;
 
@@ -535,15 +543,21 @@ class _FtpClientSession {
           _send('550 File not found');
           return;
         }
-        _send('150 Opening binary mode data connection for ${p.basename(filePath)}');
         final dataSocket = await _openDataConnection();
         if (dataSocket == null) {
           _send('425 Data connection failed');
           return;
         }
-        final file = File(filePath);
-        await file.openRead().pipe(dataSocket);
-        _send('226 Transfer complete.');
+        _send('150 Opening binary mode data connection for ${p.basename(filePath)}');
+        try {
+          final file = File(filePath);
+          await file.openRead().pipe(dataSocket);
+          _send('226 Transfer complete.');
+        } catch (_) {
+          _send('426 Connection closed; transfer aborted.');
+        } finally {
+          try { await dataSocket.close(); } catch (_) {}
+        }
         break;
 
       case 'STOR':
@@ -560,19 +574,28 @@ class _FtpClientSession {
           _send('550 Path outside root directory');
           return;
         }
-        _send('150 Ready to receive data');
         final dataSocket = await _openDataConnection();
         if (dataSocket == null) {
           _send('425 Data connection failed');
           return;
         }
-        final file = File(filePath);
-        await file.parent.create(recursive: true);
-        final sink = file.openWrite();
-        await dataSocket.forEach(sink.add);
-        await sink.flush();
-        await sink.close();
-        _send('226 File successfully transferred.');
+        _send('150 Ready to receive data');
+        IOSink? sink;
+        try {
+          final file = File(filePath);
+          await file.parent.create(recursive: true);
+          sink = file.openWrite();
+          await dataSocket.forEach(sink.add);
+          await sink.flush();
+          await sink.close();
+          sink = null;
+          _send('226 File successfully transferred.');
+        } catch (e) {
+          try { await sink?.close(); } catch (_) {}
+          _send('426 Connection closed; transfer aborted.');
+        } finally {
+          try { await dataSocket.close(); } catch (_) {}
+        }
         break;
 
       case 'DELE':
@@ -617,9 +640,24 @@ class _FtpClientSession {
           return;
         }
         final dirPath = _resolveAbsolutePath(arg);
+        final canonicalRoot = p.canonicalize(server.config.rootDirectory);
+        final canonicalTarget = p.canonicalize(dirPath);
+
+        // Security: Prevent wiping the root directory
+        if (canonicalTarget == canonicalRoot) {
+          _send('550 Cannot remove root directory');
+          return;
+        }
+
         if (_isSafePath(dirPath) && Directory(dirPath).existsSync()) {
           try {
-            Directory(dirPath).deleteSync(recursive: true);
+            final dir = Directory(dirPath);
+            // RFC 959 compliance: Only remove empty directories
+            if (dir.listSync(followLinks: false).isNotEmpty) {
+              _send('550 Directory not empty');
+              return;
+            }
+            dir.deleteSync(recursive: false);
             _send('250 Directory removed');
           } catch (_) {
             _send('550 Remove failed');

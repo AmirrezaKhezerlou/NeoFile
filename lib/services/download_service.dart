@@ -44,7 +44,17 @@ class DownloadService {
         }
       }
 
-      final targetPath = p.join(destinationDir, fileName);
+      // Security: Strip any path traversal elements from the file name
+      fileName = p.basename(fileName.replaceAll(RegExp(r'[\\/]'), '_')).trim();
+      if (fileName.isEmpty || fileName == '.' || fileName == '..') {
+        fileName = 'download_${DateTime.now().millisecondsSinceEpoch}.bin';
+      }
+
+      final canonicalDest = p.canonicalize(destinationDir);
+      final targetPath = p.canonicalize(p.join(canonicalDest, fileName));
+      if (!p.isWithin(canonicalDest, targetPath) && targetPath != canonicalDest) {
+        return false;
+      }
       final tempPath = '$targetPath.downloading';
       tempFile = File(tempPath);
       if (await tempFile.exists()) {

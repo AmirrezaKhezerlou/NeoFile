@@ -132,6 +132,11 @@ class ExplorerProvider with ChangeNotifier {
   }
 
   Future<void> _checkDirectoryChangesInBackground() async {
+    // Only execute if app is visible and resumed in foreground
+    if (WidgetsBinding.instance.lifecycleState != null &&
+        WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
     if (_isDisposed || _isLoading || _isAutoRefreshing || _isTransferring) return;
     if (isHome || currentPath.isEmpty) return;
     // Don't interrupt user if they have active multi-selection

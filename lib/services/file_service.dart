@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
@@ -7,6 +8,68 @@ import 'permission_service.dart';
 import '../models/file_item.dart';
 
 enum SortField { name, dateModified, type, size }
+
+class _DirListPayload {
+  final String path;
+  final bool showHidden;
+  final SortField sortBy;
+  final bool ascending;
+
+  const _DirListPayload({
+    required this.path,
+    required this.showHidden,
+    required this.sortBy,
+    required this.ascending,
+  });
+}
+
+List<FileItem> _dirListWorker(_DirListPayload payload) {
+  final dir = Directory(payload.path);
+  if (!dir.existsSync()) return [];
+
+  final List<FileItem> items = [];
+  try {
+    final entities = dir.listSync(followLinks: false);
+    for (final entity in entities) {
+      final name = p.basename(entity.path);
+      if (!payload.showHidden && name.startsWith('.')) continue;
+
+      try {
+        items.add(FileItem.fromFileSystemEntity(entity));
+      } catch (_) {
+        // Skip inaccessible individual nodes
+      }
+    }
+  } catch (_) {
+    return [];
+  }
+
+  // Sort items: folders first, then by field
+  items.sort((a, b) {
+    if (a.isDirectory && !b.isDirectory) return -1;
+    if (!a.isDirectory && b.isDirectory) return 1;
+
+    int cmp = 0;
+    switch (payload.sortBy) {
+      case SortField.name:
+        cmp = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        break;
+      case SortField.dateModified:
+        cmp = a.modified.compareTo(b.modified);
+        break;
+      case SortField.type:
+        cmp = a.extension.compareTo(b.extension);
+        if (cmp == 0) cmp = a.name.compareTo(b.name);
+        break;
+      case SortField.size:
+        cmp = a.size.compareTo(b.size);
+        break;
+    }
+    return payload.ascending ? cmp : -cmp;
+  });
+
+  return items;
+}
 
 class StorageVolumeInfo {
   final String title;
@@ -235,52 +298,18 @@ class FileService {
     SortField sortBy = SortField.name,
     bool ascending = true,
   }) async {
-    final dir = Directory(path);
-    if (!await dir.exists()) return [];
+    final payload = _DirListPayload(
+      path: path,
+      showHidden: showHidden,
+      sortBy: sortBy,
+      ascending: ascending,
+    );
 
-    final List<FileItem> items = [];
     try {
-      final entities = dir.listSync(followLinks: false);
-      for (final entity in entities) {
-        final name = p.basename(entity.path);
-        if (!showHidden && name.startsWith('.')) continue;
-
-        try {
-          items.add(FileItem.fromFileSystemEntity(entity));
-        } catch (_) {
-          // Skip inaccessible individual nodes
-        }
-      }
-    } catch (e) {
-      // Permission or I/O error
-      return [];
+      return await Isolate.run(() => _dirListWorker(payload));
+    } catch (_) {
+      return _dirListWorker(payload);
     }
-
-    // Sort items: folders always first, then by field
-    items.sort((a, b) {
-      if (a.isDirectory && !b.isDirectory) return -1;
-      if (!a.isDirectory && b.isDirectory) return 1;
-
-      int cmp = 0;
-      switch (sortBy) {
-        case SortField.name:
-          cmp = a.name.toLowerCase().compareTo(b.name.toLowerCase());
-          break;
-        case SortField.dateModified:
-          cmp = a.modified.compareTo(b.modified);
-          break;
-        case SortField.type:
-          cmp = a.extension.compareTo(b.extension);
-          if (cmp == 0) cmp = a.name.compareTo(b.name);
-          break;
-        case SortField.size:
-          cmp = a.size.compareTo(b.size);
-          break;
-      }
-      return ascending ? cmp : -cmp;
-    });
-
-    return items;
   }
 
   static Future<bool> createFolder(String parentPath, String folderName) async {
@@ -369,16 +398,30 @@ class FileService {
     void Function(double progress, String currentItem, String speed)? onProgress,
     bool Function()? isCancelled,
   }) async {
+    final canonicalDest = p.canonicalize(destDir);
+    for (final src in sourcePaths) {
+      final canonicalSrc = p.canonicalize(src);
+      if (canonicalDest == canonicalSrc || p.isWithin(canonicalSrc, canonicalDest)) {
+        throw FileSystemException(
+          'Cannot copy a folder into itself or a subfolder',
+          src,
+        );
+      }
+    }
+
     final totalBytes = await calculateTotalBytes(sourcePaths);
     int transferredBytes = 0;
     final stopwatch = Stopwatch()..start();
     int lastCheckTime = 0;
     int lastCheckBytes = 0;
+    int lastProgressDispatch = 0;
     String currentSpeed = '0 KB/s';
 
     void updateProgress(String currentName) {
       final elapsedMs = stopwatch.elapsedMilliseconds;
-      if (elapsedMs - lastCheckTime >= 300 || transferredBytes == totalBytes) {
+      final isDone = (transferredBytes >= totalBytes);
+
+      if (elapsedMs - lastCheckTime >= 250 || isDone) {
         final diffBytes = transferredBytes - lastCheckBytes;
         final diffTimeSec = (elapsedMs - lastCheckTime) / 1000.0;
         if (diffTimeSec > 0) {
@@ -388,12 +431,17 @@ class FileService {
         lastCheckTime = elapsedMs;
         lastCheckBytes = transferredBytes;
       }
-      final prog = totalBytes > 0 ? (transferredBytes / totalBytes).clamp(0.0, 1.0) : 1.0;
-      onProgress?.call(
-        prog,
-        '$currentName (${formatBytes(transferredBytes)} / ${formatBytes(totalBytes)})',
-        currentSpeed,
-      );
+
+      // Throttle UI & Notification IPC dispatches to max 4 updates/sec (250ms gate)
+      if (elapsedMs - lastProgressDispatch >= 250 || isDone) {
+        lastProgressDispatch = elapsedMs;
+        final prog = totalBytes > 0 ? (transferredBytes / totalBytes).clamp(0.0, 1.0) : 1.0;
+        onProgress?.call(
+          prog,
+          '$currentName (${formatBytes(transferredBytes)} / ${formatBytes(totalBytes)})',
+          currentSpeed,
+        );
+      }
     }
 
     for (final src in sourcePaths) {
@@ -432,16 +480,30 @@ class FileService {
     void Function(double progress, String currentItem, String speed)? onProgress,
     bool Function()? isCancelled,
   }) async {
+    final canonicalDest = p.canonicalize(destDir);
+    for (final src in sourcePaths) {
+      final canonicalSrc = p.canonicalize(src);
+      if (canonicalDest == canonicalSrc || p.isWithin(canonicalSrc, canonicalDest)) {
+        throw FileSystemException(
+          'Cannot move a folder into itself or a subfolder',
+          src,
+        );
+      }
+    }
+
     final totalBytes = await calculateTotalBytes(sourcePaths);
     int transferredBytes = 0;
     final stopwatch = Stopwatch()..start();
     int lastCheckTime = 0;
     int lastCheckBytes = 0;
+    int lastProgressDispatch = 0;
     String currentSpeed = '0 KB/s';
 
     void updateProgress(String currentName) {
       final elapsedMs = stopwatch.elapsedMilliseconds;
-      if (elapsedMs - lastCheckTime >= 300 || transferredBytes == totalBytes) {
+      final isDone = (transferredBytes >= totalBytes);
+
+      if (elapsedMs - lastCheckTime >= 250 || isDone) {
         final diffBytes = transferredBytes - lastCheckBytes;
         final diffTimeSec = (elapsedMs - lastCheckTime) / 1000.0;
         if (diffTimeSec > 0) {
@@ -451,12 +513,17 @@ class FileService {
         lastCheckTime = elapsedMs;
         lastCheckBytes = transferredBytes;
       }
-      final prog = totalBytes > 0 ? (transferredBytes / totalBytes).clamp(0.0, 1.0) : 1.0;
-      onProgress?.call(
-        prog,
-        '$currentName (${formatBytes(transferredBytes)} / ${formatBytes(totalBytes)})',
-        currentSpeed,
-      );
+
+      // Throttle UI & Notification IPC dispatches to max 4 updates/sec (250ms gate)
+      if (elapsedMs - lastProgressDispatch >= 250 || isDone) {
+        lastProgressDispatch = elapsedMs;
+        final prog = totalBytes > 0 ? (transferredBytes / totalBytes).clamp(0.0, 1.0) : 1.0;
+        onProgress?.call(
+          prog,
+          '$currentName (${formatBytes(transferredBytes)} / ${formatBytes(totalBytes)})',
+          currentSpeed,
+        );
+      }
     }
 
     for (final src in sourcePaths) {

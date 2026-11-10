@@ -93,6 +93,24 @@ class _FluentMarqueeTextState extends State<FluentMarqueeText> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        final tp = TextPainter(
+          text: TextSpan(text: widget.text, style: widget.style),
+          textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+          maxLines: 1,
+        )..layout(maxWidth: double.infinity);
+
+        // If the text naturally fits inside bounds, avoid horizontal scrollview and animation tickers
+        if (tp.width <= constraints.maxWidth) {
+          _stopAnimation();
+          return Text(
+            widget.text,
+            style: widget.style,
+            textAlign: widget.textAlign,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          );
+        }
+
         return SingleChildScrollView(
           controller: _scrollController,
           scrollDirection: Axis.horizontal,

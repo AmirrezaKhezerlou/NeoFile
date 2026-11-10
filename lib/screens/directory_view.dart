@@ -277,6 +277,7 @@ class _DirectoryViewState extends State<DirectoryView> {
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
       padding: EdgeInsets.symmetric(vertical: settings.compactView ? 2 : 4),
+      itemExtentBuilder: (index, _) => index == 0 ? 32.0 : rowHeight,
       itemCount: items.length + 1, // +1 for table header
       itemBuilder: (ctx, i) {
         if (i == 0) {
@@ -353,14 +354,25 @@ class _DirectoryViewState extends State<DirectoryView> {
                   // Name Column
                   Expanded(
                     flex: 5,
-                    child: FluentMarqueeText(
-                      item.name,
-                      style: TextStyle(
-                        fontSize: 12.5 * fontScale,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                        color: colors.textPrimary,
-                      ),
-                    ),
+                    child: isSelected
+                        ? FluentMarqueeText(
+                            item.name,
+                            style: TextStyle(
+                              fontSize: 12.5 * fontScale,
+                              fontWeight: FontWeight.w600,
+                              color: colors.textPrimary,
+                            ),
+                          )
+                        : Text(
+                            item.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12.5 * fontScale,
+                              fontWeight: FontWeight.w400,
+                              color: colors.textPrimary,
+                            ),
+                          ),
                   ),
 
                   // Date Modified Column
@@ -401,14 +413,25 @@ class _DirectoryViewState extends State<DirectoryView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        FluentMarqueeText(
-                          item.name,
-                          style: TextStyle(
-                            fontSize: 13.0 * fontScale,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: colors.textPrimary,
-                          ),
-                        ),
+                        isSelected
+                            ? FluentMarqueeText(
+                                item.name,
+                                style: TextStyle(
+                                  fontSize: 13.0 * fontScale,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.textPrimary,
+                                ),
+                              )
+                            : Text(
+                                item.name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 13.0 * fontScale,
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.textPrimary,
+                                ),
+                              ),
                         if (subtitleText.isNotEmpty) ...[
                           const SizedBox(height: 2),
                           Text(

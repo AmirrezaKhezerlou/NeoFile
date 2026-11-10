@@ -124,7 +124,10 @@ class _WindowsVideoPlayerState extends State<WindowsVideoPlayer> {
       });
     }
 
-    setState(() {});
+    // Only rebuild controls when they are actively displayed
+    if (_showControls) {
+      setState(() {});
+    }
   }
 
   void _checkForAutoSubtitles() {

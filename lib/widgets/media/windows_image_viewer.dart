@@ -341,8 +341,13 @@ class _WindowsImageViewerState extends State<WindowsImageViewer> {
                           },
                           child: RotatedBox(
                             quarterTurns: _rotationQuarterTurns,
-                            child: Image.file(
-                              File(_currentItem.path),
+                            child: Image(
+                              image: ResizeImage(
+                                FileImage(File(_currentItem.path)),
+                                width: (MediaQuery.of(context).size.width * MediaQuery.of(context).devicePixelRatio).toInt().clamp(720, 2560),
+                                height: (MediaQuery.of(context).size.height * MediaQuery.of(context).devicePixelRatio).toInt().clamp(1280, 2560),
+                                policy: ResizeImagePolicy.fit,
+                              ),
                               fit: BoxFit.contain,
                               errorBuilder: (ctx, err, stack) => Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
