@@ -5,8 +5,11 @@ import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/ftp_server_screen.dart';
 import '../screens/mcp_server_screen.dart';
+import '../screens/notepad_screen.dart';
+import '../screens/recycle_bin_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/storage_analyzer_screen.dart';
+import '../screens/vault_screen.dart';
 import '../screens/widgets_gallery_screen.dart';
 import '../services/file_service.dart';
 import '../services/ftp_server_service.dart';
@@ -74,11 +77,20 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: colors.primary.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: colors.primary.withOpacity(0.3)),
+                      border: Border.all(color: colors.primary.withOpacity(0.2)),
                     ),
-                    child: Icon(Icons.folder_copy_outlined, color: colors.primary, size: 24),
+                    clipBehavior: Clip.antiAlias,
+                    child: Image.asset(
+                      'assets/icons/app_icon.png',
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: colors.primary.withOpacity(0.12),
+                        child: Icon(Icons.folder_copy_outlined, color: colors.primary, size: 24),
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -142,6 +154,51 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
                         context,
                         MaterialPageRoute(builder: (_) => const StorageAnalyzerScreen()),
                       );
+                    },
+                    colors: colors,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // File Vault
+                  _buildNavItem(
+                    context,
+                    icon: Icons.shield_outlined,
+                    title: 'File Vault',
+                    onTap: () {
+                      Navigator.pop(context);
+                      VaultScreen.open(context);
+                    },
+                    colors: colors,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Recycle Bin
+                  _buildNavItem(
+                    context,
+                    icon: Icons.delete_sweep_outlined,
+                    title: 'Recycle Bin',
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const RecycleBinScreen()),
+                      );
+                    },
+                    colors: colors,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Notepad
+                  _buildNavItem(
+                    context,
+                    icon: Icons.edit_note_outlined,
+                    title: 'Notepad',
+                    onTap: () {
+                      Navigator.pop(context);
+                      WindowsNotepadScreen.open(context);
                     },
                     colors: colors,
                   ),

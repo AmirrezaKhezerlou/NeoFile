@@ -109,6 +109,9 @@ class FluentCommandRibbon extends StatelessWidget {
           case 'zip':
             _showCompressRibbonDialog(context, explorer, settings);
             break;
+          case 'vault':
+            explorer.moveToVault(explorer.selectedPaths.toList(), context, showHidden: settings.showHiddenFiles);
+            break;
           case 'delete':
             _confirmDelete(context, explorer, settings);
             break;
@@ -152,6 +155,7 @@ class FluentCommandRibbon extends StatelessWidget {
         _buildPopupItem('rename', Icons.edit_outlined, 'Rename', singleSelection && !isHome, colors),
         _buildPopupItem('share', Icons.share_outlined, 'Share', canShare, colors),
         _buildPopupItem('zip', Icons.archive_outlined, 'Compress to ZIP...', hasSelection && !isHome, colors),
+        _buildPopupItem('vault', Icons.shield_outlined, 'Move to File Vault...', hasSelection && !isHome, colors),
         _buildPopupItem('delete', Icons.delete_outline, 'Delete', hasSelection && !isHome, colors, isDestructive: true),
         const PopupMenuDivider(height: 1),
         _buildPopupHeader('Sort by', colors),
@@ -635,7 +639,7 @@ class FluentCommandRibbon extends StatelessWidget {
           ),
           title: Text('Delete Confirmation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.textPrimary)),
           content: Text(
-            'Are you sure you want to permanently delete $count selected item(s)?',
+            'What would you like to do with $count selected item(s)?\n\nMoving to Recycle Bin allows restoration anytime before automatic purge.',
             style: TextStyle(fontSize: 13, color: colors.textSecondary),
           ),
           actions: [
@@ -643,13 +647,25 @@ class FluentCommandRibbon extends StatelessWidget {
               onPressed: () => Navigator.pop(ctx),
               child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
             ),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: colors.error),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colors.error,
+                side: BorderSide(color: colors.error.withOpacity(0.5)),
+              ),
               onPressed: () async {
                 Navigator.pop(ctx);
                 await explorer.deleteSelected(showHidden: settings.showHiddenFiles);
               },
-              child: const Text('Delete'),
+              child: const Text('Delete Permanently'),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.delete_sweep_outlined, size: 16),
+              style: FilledButton.styleFrom(backgroundColor: colors.primary),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await explorer.recycleSelected(showHidden: settings.showHiddenFiles);
+              },
+              label: const Text('Move to Recycle Bin'),
             ),
           ],
         );

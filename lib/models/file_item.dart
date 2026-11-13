@@ -76,6 +76,7 @@ class FileItem {
   bool get isAudio => ['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac'].contains(extension);
   bool get isArchive => ['zip', 'rar', '7z', 'tar', 'gz'].contains(extension);
   bool get isApk => extension == 'apk';
+  bool get isText => ['txt', 'log', 'md', 'json', 'yaml', 'yml', 'xml', 'csv', 'ini', 'conf', 'dart', 'py', 'js', 'html', 'css', 'sql', 'sh', 'bat', 'properties'].contains(extension);
   bool get isCode => ['dart', 'py', 'js', 'html', 'css', 'json', 'yaml', 'xml', 'cpp', 'c', 'java', 'kt', 'txt', 'md'].contains(extension);
 
   String get typeDescription {

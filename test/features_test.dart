@@ -233,6 +233,9 @@ void main() {
       final settings = SettingsProvider(prefs);
       final explorer = ExplorerProvider();
 
+      await tester.binding.setSurfaceSize(const Size(800, 1600));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
       await tester.pumpWidget(
         MultiProvider(
           providers: [
@@ -257,6 +260,8 @@ void main() {
       expect(find.text('Fast, Private & Powerful'), findsOneWidget);
       expect(find.text('This PC / Home'), findsOneWidget);
       expect(find.text('Storage Analyzer'), findsOneWidget);
+      expect(find.text('File Vault'), findsOneWidget);
+      expect(find.text('Recycle Bin'), findsOneWidget);
       expect(find.text('Local MCP Server'), findsOneWidget);
       expect(find.text('Local FTP Server'), findsOneWidget);
       expect(find.text('Home Screen Widgets'), findsOneWidget);

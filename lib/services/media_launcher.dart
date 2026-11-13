@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/file_item.dart';
 import '../providers/settings_provider.dart';
 import '../services/file_service.dart';
+import '../screens/notepad_screen.dart';
 import '../widgets/media/windows_audio_player.dart';
 import '../widgets/media/windows_image_viewer.dart';
 import '../widgets/media/windows_pdf_viewer.dart';
@@ -30,6 +31,8 @@ class MediaLauncher {
       WindowsAudioPlayer.show(context, item, siblings);
     } else if (item.isPdf) {
       WindowsPdfViewer.show(context, item);
+    } else if (item.isText) {
+      WindowsNotepadScreen.open(context, filePath: item.path, fileItem: item);
     } else {
       FileService.openFile(item.path, useChooser: false);
     }

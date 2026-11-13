@@ -184,6 +184,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           const SizedBox(height: 18),
 
+          // Section: Vault & Recycle Bin
+          _buildSectionTitle('Vault & Recycle Bin', Icons.shield_outlined, colors),
+          const SizedBox(height: 8),
+          _buildCard(
+            colors,
+            children: [
+              SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                secondary: Icon(Icons.shield_outlined, color: colors.primary, size: 22),
+                title: Text('Show File Vault on Home screen', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text('Display shortcut drive directly under Internal Storage', style: TextStyle(fontSize: 11, color: colors.textSecondary)),
+                value: settings.showVaultOnHomeScreen,
+                activeColor: colors.primary,
+                onChanged: (val) => settings.setShowVaultOnHomeScreen(val),
+              ),
+              _buildDivider(colors),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                leading: Icon(Icons.delete_sweep_outlined, color: colors.primary, size: 22),
+                title: Text('Recycle Bin retention period', style: TextStyle(fontSize: 13, color: colors.textPrimary)),
+                subtitle: Text(
+                  settings.recycleBinRetentionDays > 0
+                      ? 'Automatically purge files after ${settings.recycleBinRetentionDays} days'
+                      : 'Never purge automatically (Keep indefinitely)',
+                  style: TextStyle(fontSize: 11, color: colors.textSecondary),
+                ),
+                trailing: DropdownButton<int>(
+                  value: settings.recycleBinRetentionDays,
+                  underline: const SizedBox.shrink(),
+                  dropdownColor: colors.cardSurface,
+                  style: TextStyle(fontSize: 12, color: colors.primary, fontWeight: FontWeight.w600),
+                  items: const [
+                    DropdownMenuItem(value: 7, child: Text('7 days')),
+                    DropdownMenuItem(value: 14, child: Text('14 days')),
+                    DropdownMenuItem(value: 30, child: Text('30 days')),
+                    DropdownMenuItem(value: 60, child: Text('60 days')),
+                    DropdownMenuItem(value: 0, child: Text('Never')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) settings.setRecycleBinRetentionDays(val);
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 18),
+
           // Section 4: Privacy & Permissions
           _buildSectionTitle('Permissions & Security', Icons.security_outlined, colors),
           const SizedBox(height: 8),

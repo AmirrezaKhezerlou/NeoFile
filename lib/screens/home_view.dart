@@ -11,6 +11,8 @@ import '../theme/fluent_theme.dart';
 import '../widgets/fluent_context_menu.dart';
 import '../widgets/fluent_file_icons.dart';
 import '../widgets/fluent_marquee_text.dart';
+import 'recycle_bin_screen.dart';
+import 'vault_screen.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -44,6 +46,9 @@ class HomeView extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           ...explorer.storageVolumes.map((vol) => _buildStorageCard(context, vol, explorer, colors)),
+          if (settings.showVaultOnHomeScreen) ...[
+            _buildVaultCard(context, colors),
+          ],
 
           const SizedBox(height: 18),
 
@@ -213,6 +218,85 @@ class HomeView extends StatelessWidget {
     );
   }
 
+  Widget _buildVaultCard(BuildContext context, FluentColors colors) {
+    return InkWell(
+      onTap: () => VaultScreen.open(context),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: colors.cardSurface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: colors.primary.withOpacity(0.3), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: colors.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.shield_outlined,
+                size: 22,
+                color: colors.primary,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'File Vault',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: colors.textPrimary,
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.lock, size: 10, color: colors.primary),
+                            const SizedBox(width: 3),
+                            Text(
+                              'Protected',
+                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: colors.primary),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Private, encrypted and hidden from gallery',
+                    style: TextStyle(fontSize: 11, color: colors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(Icons.chevron_right, size: 16, color: colors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildQuickAccessGrid(
     BuildContext context,
     ExplorerProvider explorer,
@@ -225,6 +309,7 @@ class HomeView extends StatelessWidget {
       _QuickFolder(title: 'DCIM', path: '/storage/emulated/0/DCIM', icon: Icons.camera_alt, color: const Color(0xFFE3008C)),
       _QuickFolder(title: 'Music', path: '/storage/emulated/0/Music', icon: Icons.audio_file, color: const Color(0xFFB146C2)),
       _QuickFolder(title: 'Movies', path: '/storage/emulated/0/Movies', icon: Icons.movie, color: const Color(0xFFD83B01)),
+      _QuickFolder(title: 'Recycle Bin', path: '__recycle_bin__', icon: Icons.delete_sweep_outlined, color: const Color(0xFFC43E1C)),
     ];
 
     return LayoutBuilder(
@@ -243,7 +328,16 @@ class HomeView extends StatelessWidget {
           itemBuilder: (ctx, i) {
             final f = standardFolders[i];
             return InkWell(
-              onTap: () => explorer.navigateTo(f.path),
+              onTap: () {
+                if (f.path == '__recycle_bin__') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RecycleBinScreen()),
+                  );
+                } else {
+                  explorer.navigateTo(f.path);
+                }
+              },
               borderRadius: BorderRadius.circular(6),
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),

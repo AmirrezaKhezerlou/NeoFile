@@ -8,6 +8,9 @@ import '../models/file_item.dart';
 import '../services/archive_service.dart';
 import '../services/download_service.dart';
 import '../services/file_service.dart';
+import '../services/recycle_bin_service.dart';
+import '../services/vault_service.dart';
+import '../widgets/vault/vault_auth_dialog.dart';
 import 'settings_provider.dart';
 
 class ExplorerProvider with ChangeNotifier {
@@ -798,6 +801,33 @@ class ExplorerProvider with ChangeNotifier {
 
   double getSavedScrollOffset([String? path]) {
     return activeTab.getScrollOffset(path ?? currentPath);
+  }
+
+  Future<void> moveToRecycleBin(List<String> paths, {bool showHidden = false}) async {
+    if (paths.isEmpty) return;
+    await RecycleBinService.instance.moveToBin(paths);
+    _selectedPaths.removeWhere((p) => paths.contains(p));
+    await loadCurrentPath(showHidden: showHidden);
+  }
+
+  Future<void> recycleSelected({bool showHidden = false}) async {
+    if (_selectedPaths.isEmpty) return;
+    await moveToRecycleBin(_selectedPaths.toList(), showHidden: showHidden);
+  }
+
+  Future<bool> moveToVault(List<String> paths, BuildContext context, {bool showHidden = false}) async {
+    if (paths.isEmpty) return false;
+    final unlocked = await VaultAuthDialog.requestAuth(
+      context,
+      title: 'Move to File Vault',
+      description: 'Authenticate to move selected items into File Vault',
+    );
+    if (!unlocked) return false;
+
+    await VaultService.instance.importFiles(paths);
+    _selectedPaths.removeWhere((p) => paths.contains(p));
+    await loadCurrentPath(showHidden: showHidden);
+    return true;
   }
 
   Future<void> deleteItems(List<String> paths, {bool showHidden = false}) async {

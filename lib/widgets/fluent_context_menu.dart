@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/file_item.dart';
 import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
+import '../screens/notepad_screen.dart';
 import '../services/media_launcher.dart';
 import '../theme/fluent_theme.dart';
 import 'file_properties_sheet.dart';
@@ -122,6 +123,17 @@ class FluentContextMenu {
                   },
                   colors: colors,
                 ),
+              if (!item.isDirectory && (item.isText || item.isCode))
+                _buildMenuItem(
+                  ctx,
+                  icon: Icons.edit_note_outlined,
+                  title: 'Edit in Notepad',
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    WindowsNotepadScreen.open(context, filePath: item.path, fileItem: item);
+                  },
+                  colors: colors,
+                ),
               _buildMenuItem(
                 ctx,
                 icon: Icons.content_cut,
@@ -200,6 +212,19 @@ class FluentContextMenu {
                 onTap: () {
                   Navigator.pop(ctx);
                   _showCompressDialog(context, explorer, settings, [item.path], item.name);
+                },
+                colors: colors,
+              ),
+              _buildMenuItem(
+                ctx,
+                icon: Icons.shield_outlined,
+                title: 'Move to File Vault...',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  final paths = explorer.selectedPaths.contains(item.path)
+                      ? explorer.selectedPaths.toList()
+                      : [item.path];
+                  explorer.moveToVault(paths, context, showHidden: settings.showHiddenFiles);
                 },
                 colors: colors,
               ),
@@ -342,13 +367,25 @@ class FluentContextMenu {
               onPressed: () => Navigator.pop(ctx),
               child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
             ),
-            FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: colors.error),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: colors.error,
+                side: BorderSide(color: colors.error.withOpacity(0.5)),
+              ),
               onPressed: () async {
                 Navigator.pop(ctx);
                 await explorer.deleteItems(pathsToDelete, showHidden: settings.showHiddenFiles);
               },
-              child: const Text('Delete'),
+              child: const Text('Delete Permanently'),
+            ),
+            FilledButton.icon(
+              icon: const Icon(Icons.delete_sweep_outlined, size: 16),
+              style: FilledButton.styleFrom(backgroundColor: colors.primary),
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await explorer.moveToRecycleBin(pathsToDelete, showHidden: settings.showHiddenFiles);
+              },
+              label: const Text('Move to Recycle Bin'),
             ),
           ],
         );

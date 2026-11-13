@@ -27,6 +27,8 @@ class SettingsProvider with ChangeNotifier {
   bool _showListFileSize = true;
   bool _singleLineListItems = false;
   int _listItemDensity = 1;
+  bool _showVaultOnHomeScreen = true;
+  int _recycleBinRetentionDays = 30;
   Set<String> _pinnedPaths = {};
   List<String> _recentFiles = [];
 
@@ -47,6 +49,8 @@ class SettingsProvider with ChangeNotifier {
   bool get showListFileSize => _showListFileSize;
   bool get singleLineListItems => _singleLineListItems;
   int get listItemDensity => _listItemDensity;
+  bool get showVaultOnHomeScreen => _showVaultOnHomeScreen;
+  int get recycleBinRetentionDays => _recycleBinRetentionDays;
   Set<String> get pinnedPaths => _pinnedPaths;
   List<String> get recentFiles => _recentFiles;
 
@@ -123,6 +127,8 @@ class SettingsProvider with ChangeNotifier {
 
     _pinnedPaths = (prefs.getStringList('pinned_paths') ?? []).toSet();
     _recentFiles = prefs.getStringList('recent_files') ?? [];
+    _showVaultOnHomeScreen = prefs.getBool('show_vault_on_home_screen') ?? true;
+    _recycleBinRetentionDays = prefs.getInt('recycle_bin_retention_days') ?? 30;
   }
 
   Future<void> ensureLoaded() async {
@@ -323,6 +329,20 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await _getPrefs();
     await prefs.setBool('use_internal_media_viewer', value);
+  }
+
+  Future<void> setShowVaultOnHomeScreen(bool value) async {
+    _showVaultOnHomeScreen = value;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setBool('show_vault_on_home_screen', value);
+  }
+
+  Future<void> setRecycleBinRetentionDays(int days) async {
+    _recycleBinRetentionDays = days;
+    notifyListeners();
+    final prefs = await _getPrefs();
+    await prefs.setInt('recycle_bin_retention_days', days);
   }
 
   Future<void> clearRecentFiles() async {
