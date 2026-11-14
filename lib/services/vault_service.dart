@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,6 +26,12 @@ class VaultService {
 
   void lock() {
     _isUnlocked = false;
+  }
+
+  static Future<void> setWindowSecure(bool secure) async {
+    try {
+      const MethodChannel('com.neofile.app/storage').invokeMethod('setSecureFlag', {'secure': secure});
+    } catch (_) {}
   }
 
   void forceUnlockForTesting() {

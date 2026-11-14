@@ -13,13 +13,14 @@ class VaultScreen extends StatefulWidget {
   const VaultScreen({super.key});
 
   static Future<void> open(BuildContext context) async {
+    final rootNav = Navigator.of(context, rootNavigator: true);
     final unlocked = await VaultAuthDialog.requestAuth(
-      context,
+      rootNav.context,
       title: 'File Vault',
       description: 'Enter credentials to open your protected vault',
     );
-    if (unlocked && context.mounted) {
-      Navigator.of(context).push(
+    if (unlocked && rootNav.context.mounted) {
+      rootNav.push(
         MaterialPageRoute(builder: (_) => const VaultScreen()),
       );
     }
@@ -29,7 +30,7 @@ class VaultScreen extends StatefulWidget {
   State<VaultScreen> createState() => _VaultScreenState();
 }
 
-class _VaultScreenState extends State<VaultScreen> {
+class _VaultScreenState extends State<VaultScreen> with WidgetsBindingObserver {
   final VaultService _vault = VaultService.instance;
   String _basePath = '';
   String _currentPath = '';
@@ -40,11 +41,25 @@ class _VaultScreenState extends State<VaultScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    VaultService.setWindowSecure(true);
     _initVault();
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _vault.lock();
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    VaultService.setWindowSecure(false);
     _vault.lock();
     super.dispose();
   }
@@ -319,62 +334,117 @@ class _VaultScreenState extends State<VaultScreen> {
     }
   }
 
+  Future<void> _handleChangeCredentials() async {
+    final verified = await VaultAuthDialog.requestAuth(
+      context,
+      title: 'Verify Identity',
+      description: 'Enter current password or pattern to change credentials',
+    );
+    if (!verified || !mounted) return;
+
+    final changed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => const VaultAuthDialog(
+        isSetupMode: true,
+        title: 'Change Credentials',
+        description: 'Choose a new password, PIN or pattern for File Vault',
+      ),
+    );
+
+    if (changed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vault credentials updated successfully')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = FluentColors.of(context);
 
-    return Scaffold(
-      backgroundColor: colors.canvas,
-      appBar: AppBar(
-        backgroundColor: colors.cardSurface,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(_isAtRoot ? Icons.arrow_back : Icons.arrow_upward, color: colors.textPrimary),
-          onPressed: _navigateUp,
-          tooltip: _isAtRoot ? 'Back' : 'Up one level',
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.shield_outlined, size: 16, color: colors.primary),
-                const SizedBox(width: 6),
-                Text(
-                  'File Vault',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: colors.textPrimary),
+    return PopScope(
+      canPop: _isAtRoot,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          _navigateUp();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colors.canvas,
+        appBar: AppBar(
+          backgroundColor: colors.cardSurface,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(_isAtRoot ? Icons.arrow_back : Icons.arrow_upward, color: colors.textPrimary),
+            onPressed: _navigateUp,
+            tooltip: _isAtRoot ? 'Back' : 'Up one level',
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.shield_outlined, size: 16, color: colors.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    'File Vault',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: colors.textPrimary),
+                  ),
+                ],
+              ),
+              Text(
+                _getRelativeBreadcrumb(),
+                style: TextStyle(fontSize: 11, color: colors.textMuted),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.create_new_folder_outlined, color: colors.textPrimary),
+              tooltip: 'New Folder',
+              onPressed: _showCreateFolderDialog,
+            ),
+            IconButton(
+              icon: Icon(Icons.add_circle_outline, color: colors.primary),
+              tooltip: 'Import Files',
+              onPressed: _importFilesFlow,
+            ),
+            IconButton(
+              icon: Icon(Icons.lock_outline, color: colors.textPrimary),
+              tooltip: 'Lock Vault',
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: colors.textPrimary),
+              tooltip: 'Vault Options',
+              onSelected: (val) {
+                if (val == 'change_creds') {
+                  _handleChangeCredentials();
+                }
+              },
+              itemBuilder: (ctx) => [
+                PopupMenuItem(
+                  value: 'change_creds',
+                  child: Row(
+                    children: [
+                      Icon(Icons.password_outlined, size: 18, color: colors.primary),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Change Password / Pattern',
+                        style: TextStyle(fontSize: 13, color: colors.textPrimary),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-            Text(
-              _getRelativeBreadcrumb(),
-              style: TextStyle(fontSize: 11, color: colors.textMuted),
-              overflow: TextOverflow.ellipsis,
-            ),
           ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1),
+            child: Container(color: colors.borderSubtle, height: 1),
+          ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.create_new_folder_outlined, color: colors.textPrimary),
-            tooltip: 'New Folder',
-            onPressed: _showCreateFolderDialog,
-          ),
-          IconButton(
-            icon: Icon(Icons.add_circle_outline, color: colors.primary),
-            tooltip: 'Import Files',
-            onPressed: _importFilesFlow,
-          ),
-          IconButton(
-            icon: Icon(Icons.lock_outline, color: colors.textPrimary),
-            tooltip: 'Lock Vault',
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1),
-          child: Container(color: colors.borderSubtle, height: 1),
-        ),
-      ),
       bottomNavigationBar: _selectedPaths.isNotEmpty
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -480,27 +550,54 @@ class _VaultScreenState extends State<VaultScreen> {
                     );
                   },
                 ),
+      ),
     );
   }
 
   Widget _buildLeadingIcon(FileItem item, FluentColors colors) {
     if (item.isDirectory) {
       final name = item.name;
-      IconData icon = Icons.folder;
-      Color col = Colors.amber.shade700;
+      IconData icon = Icons.folder_rounded;
+      List<Color> gradientColors;
+
       if (name == 'Images') {
-        icon = Icons.photo_library_outlined;
-        col = Colors.blue;
+        icon = Icons.photo_size_select_actual_rounded;
+        gradientColors = const [Color(0xFF0078D4), Color(0xFF005A9E)];
       } else if (name == 'Videos') {
-        icon = Icons.video_collection_outlined;
-        col = Colors.purple;
+        icon = Icons.smart_display_rounded;
+        gradientColors = const [Color(0xFF8764B8), Color(0xFF5C2D91)];
       } else if (name == 'Files') {
-        icon = Icons.folder_special_outlined;
-        col = Colors.teal;
+        icon = Icons.description_rounded;
+        gradientColors = const [Color(0xFF107C41), Color(0xFF0B5A2F)];
+      } else {
+        icon = Icons.folder_rounded;
+        gradientColors = const [Color(0xFFFFB900), Color(0xFFD83B01)];
       }
-      return Icon(icon, size: 28, color: col);
+
+      return Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.first.withOpacity(0.25),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Center(
+          child: Icon(icon, size: 20, color: Colors.white),
+        ),
+      );
     }
-    return FluentFileIcon(item: item, size: 28);
+    return FluentFileIcon(item: item, size: 36);
   }
 
   Widget _buildEmptyState(FluentColors colors) {
@@ -508,7 +605,23 @@ class _VaultScreenState extends State<VaultScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.shield_outlined, size: 64, color: colors.textMuted.withOpacity(0.4)),
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colors.primary.withOpacity(0.18),
+                  colors.primary.withOpacity(0.06),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: colors.primary.withOpacity(0.25), width: 1.5),
+            ),
+            child: Icon(Icons.shield_outlined, size: 38, color: colors.primary),
+          ),
           const SizedBox(height: 16),
           Text(
             'This folder is empty',
@@ -526,6 +639,7 @@ class _VaultScreenState extends State<VaultScreen> {
             onPressed: _importFilesFlow,
             style: FilledButton.styleFrom(
               backgroundColor: colors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),

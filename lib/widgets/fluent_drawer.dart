@@ -5,7 +5,6 @@ import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../screens/ftp_server_screen.dart';
 import '../screens/mcp_server_screen.dart';
-import '../screens/notepad_screen.dart';
 import '../screens/recycle_bin_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/storage_analyzer_screen.dart';
@@ -165,9 +164,13 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
                     context,
                     icon: Icons.shield_outlined,
                     title: 'File Vault',
-                    onTap: () {
+                    onTap: () async {
+                      final rootNav = Navigator.of(context, rootNavigator: true);
                       Navigator.pop(context);
-                      VaultScreen.open(context);
+                      await Future.delayed(const Duration(milliseconds: 120));
+                      if (rootNav.context.mounted) {
+                        VaultScreen.open(rootNav.context);
+                      }
                     },
                     colors: colors,
                   ),
@@ -185,20 +188,6 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
                         context,
                         MaterialPageRoute(builder: (_) => const RecycleBinScreen()),
                       );
-                    },
-                    colors: colors,
-                  ),
-
-                  const SizedBox(height: 4),
-
-                  // Notepad
-                  _buildNavItem(
-                    context,
-                    icon: Icons.edit_note_outlined,
-                    title: 'Notepad',
-                    onTap: () {
-                      Navigator.pop(context);
-                      WindowsNotepadScreen.open(context);
                     },
                     colors: colors,
                   ),

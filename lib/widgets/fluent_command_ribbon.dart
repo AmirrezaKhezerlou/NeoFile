@@ -5,6 +5,7 @@ import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
 import '../services/file_service.dart';
 import '../theme/fluent_theme.dart';
+import 'fluent_delete_dialog.dart';
 
 class FluentCommandRibbon extends StatelessWidget {
   const FluentCommandRibbon({super.key});
@@ -621,56 +622,24 @@ class FluentCommandRibbon extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(
+  Future<void> _confirmDelete(
     BuildContext context,
     ExplorerProvider explorer,
     SettingsProvider settings,
-  ) {
+  ) async {
     final count = explorer.selectionCount;
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        final colors = FluentColors.of(ctx);
-        return AlertDialog(
-          backgroundColor: colors.cardSurface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-            side: BorderSide(color: colors.border),
-          ),
-          title: Text('Delete Confirmation', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-          content: Text(
-            'What would you like to do with $count selected item(s)?\n\nMoving to Recycle Bin allows restoration anytime before automatic purge.',
-            style: TextStyle(fontSize: 13, color: colors.textSecondary),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: Text('Cancel', style: TextStyle(color: colors.textSecondary)),
-            ),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: colors.error,
-                side: BorderSide(color: colors.error.withOpacity(0.5)),
-              ),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await explorer.deleteSelected(showHidden: settings.showHiddenFiles);
-              },
-              child: const Text('Delete Permanently'),
-            ),
-            FilledButton.icon(
-              icon: const Icon(Icons.delete_sweep_outlined, size: 16),
-              style: FilledButton.styleFrom(backgroundColor: colors.primary),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await explorer.recycleSelected(showHidden: settings.showHiddenFiles);
-              },
-              label: const Text('Move to Recycle Bin'),
-            ),
-          ],
-        );
-      },
+    if (count == 0) return;
+
+    final action = await FluentDeleteDialog.show(
+      context,
+      itemCount: count,
     );
+
+    if (action == DeleteAction.recycle) {
+      await explorer.recycleSelected(showHidden: settings.showHiddenFiles);
+    } else if (action == DeleteAction.permanent) {
+      await explorer.deleteSelected(showHidden: settings.showHiddenFiles);
+    }
   }
 
   void _showCompressRibbonDialog(

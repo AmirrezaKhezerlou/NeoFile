@@ -441,6 +441,17 @@ class MainActivity : FlutterActivity() {
                             }
                         }
                     }
+                    "setSecureFlag" -> {
+                        val secure = call.argument<Boolean>("secure") ?: false
+                        runOnUiThread {
+                            if (secure) {
+                                window.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                            } else {
+                                window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+                            }
+                        }
+                        result.success(true)
+                    }
                     else -> result.notImplemented()
                 }
             }

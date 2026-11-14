@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neofile/models/file_item.dart';
 import 'package:neofile/models/recycle_bin_item.dart';
 import 'package:neofile/providers/settings_provider.dart';
 import 'package:neofile/services/recycle_bin_service.dart';
 import 'package:neofile/services/vault_service.dart';
+import 'package:neofile/widgets/fluent_delete_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -159,6 +161,83 @@ void main() {
       await settings.setRecycleBinRetentionDays(14);
       expect(settings.recycleBinRetentionDays, 14);
       expect(prefs.getInt('recycle_bin_retention_days'), 14);
+    });
+  });
+
+  group('FluentDeleteDialog Widget Tests', () {
+    testWidgets('renders options and selects Recycle Bin by default', (tester) async {
+      DeleteAction? result;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (ctx) => ElevatedButton(
+                onPressed: () async {
+                  result = await FluentDeleteDialog.show(
+                    ctx,
+                    itemCount: 2,
+                  );
+                },
+                child: const Text('Open Dialog'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete 2 Items'), findsOneWidget);
+      expect(find.text('Move to Recycle Bin'), findsOneWidget);
+      expect(find.text('Permanently Delete'), findsOneWidget);
+      expect(find.text('Move to Bin'), findsOneWidget);
+
+      // Confirm with default Recycle Bin option
+      await tester.tap(find.text('Move to Bin'));
+      await tester.pumpAndSettle();
+
+      expect(result, DeleteAction.recycle);
+    });
+
+    testWidgets('allows selecting Permanently Delete option', (tester) async {
+      DeleteAction? result;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (ctx) => ElevatedButton(
+                onPressed: () async {
+                  result = await FluentDeleteDialog.show(
+                    ctx,
+                    itemCount: 1,
+                    singleItemName: 'photo.jpg',
+                  );
+                },
+                child: const Text('Open Dialog'),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Open Dialog'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete Item'), findsOneWidget);
+
+      // Select Permanently Delete
+      await tester.tap(find.text('Permanently Delete'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete Now'), findsOneWidget);
+
+      await tester.tap(find.text('Delete Now'));
+      await tester.pumpAndSettle();
+
+      expect(result, DeleteAction.permanent);
     });
   });
 }

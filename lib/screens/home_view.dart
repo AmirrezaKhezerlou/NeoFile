@@ -233,16 +233,27 @@ class HomeView extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(8),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF0078D4), Color(0xFF004E8C)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF0078D4).withOpacity(0.3),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              child: Icon(
-                Icons.shield_outlined,
+              child: const Icon(
+                Icons.enhanced_encryption_rounded,
                 size: 22,
-                color: colors.primary,
+                color: Colors.white,
               ),
             ),
             const SizedBox(width: 12),
