@@ -460,7 +460,9 @@ class FluentCommandRibbon extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: colors.textPrimary),
                 decoration: InputDecoration(
                   labelText: 'Download URL',
+                  labelStyle: TextStyle(fontSize: 12.5, color: colors.textSecondary),
                   hintText: 'https://example.com/file.pdf',
+                  hintStyle: TextStyle(fontSize: 12.5, color: colors.textMuted),
                   isDense: true,
                   suffixIcon: IconButton(
                     icon: const Icon(Icons.content_paste_go, size: 18),
@@ -480,9 +482,11 @@ class FluentCommandRibbon extends StatelessWidget {
               TextField(
                 controller: nameController,
                 style: TextStyle(fontSize: 13, color: colors.textPrimary),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Custom Filename (Optional)',
+                  labelStyle: TextStyle(fontSize: 12.5, color: colors.textSecondary),
                   hintText: 'Leave empty to detect from URL',
+                  hintStyle: TextStyle(fontSize: 12.5, color: colors.textMuted),
                   isDense: true,
                 ),
               ),

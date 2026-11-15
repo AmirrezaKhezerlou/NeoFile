@@ -262,6 +262,7 @@ void main() {
       expect(find.text('Storage Analyzer'), findsOneWidget);
       expect(find.text('File Vault'), findsOneWidget);
       expect(find.text('Recycle Bin'), findsOneWidget);
+      expect(find.text('Download Manager'), findsOneWidget);
       expect(find.text('Local MCP Server'), findsOneWidget);
       expect(find.text('Local FTP Server'), findsOneWidget);
       expect(find.text('Home Screen Widgets'), findsOneWidget);

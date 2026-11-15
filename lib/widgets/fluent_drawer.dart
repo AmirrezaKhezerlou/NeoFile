@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../providers/explorer_provider.dart';
 import '../providers/settings_provider.dart';
+import '../screens/download_manager_screen.dart';
 import '../screens/ftp_server_screen.dart';
 import '../screens/mcp_server_screen.dart';
 import '../screens/recycle_bin_screen.dart';
@@ -10,6 +11,7 @@ import '../screens/settings_screen.dart';
 import '../screens/storage_analyzer_screen.dart';
 import '../screens/vault_screen.dart';
 import '../screens/widgets_gallery_screen.dart';
+import '../services/download_manager_service.dart';
 import '../services/file_service.dart';
 import '../services/ftp_server_service.dart';
 import '../services/mcp_server_service.dart';
@@ -50,6 +52,7 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
     final settings = context.watch<SettingsProvider>();
     final mcpService = McpServerService.instance;
     final ftpService = FtpServerService.instance;
+    final downloadManager = DownloadManagerService.instance;
 
     final isMcpRunning = mcpService.isRunning || mcpService.isPaused;
     final isFtpRunning = ftpService.isRunning;
@@ -187,6 +190,36 @@ class _FluentNavigationDrawerState extends State<FluentNavigationDrawer> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (_) => const RecycleBinScreen()),
+                      );
+                    },
+                    colors: colors,
+                  ),
+
+                  const SizedBox(height: 4),
+
+                  // Download Manager
+                  _buildNavItem(
+                    context,
+                    icon: Icons.download_rounded,
+                    title: 'Download Manager',
+                    badge: downloadManager.activeDownloadsCount > 0
+                        ? Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: colors.primary.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '${downloadManager.activeDownloadsCount}',
+                              style: TextStyle(fontSize: 9.5, fontWeight: FontWeight.w700, color: colors.primary),
+                            ),
+                          )
+                        : null,
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const DownloadManagerScreen()),
                       );
                     },
                     colors: colors,

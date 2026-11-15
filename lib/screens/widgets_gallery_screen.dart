@@ -132,7 +132,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                 context,
                 colors: colors,
                 title: 'Storage Sense Widget',
-                sizeBadge: '3 × 2',
+                sizeBadge: 'Compact Wrap',
                 description:
                     'Shows real-time internal storage usage, used vs. total GB, and a color progress bar. Tap to open Storage Analyzer.',
                 preview: Container(
@@ -143,6 +143,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF3A3A3C)),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -219,7 +220,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                 context,
                 colors: colors,
                 title: 'Local MCP Server Widget',
-                sizeBadge: '3 × 2',
+                sizeBadge: 'Compact Wrap',
                 description:
                     'Monitors your background Model Context Protocol server status, IP port, and SSE listeners. Tap to jump to MCP panel.',
                 preview: Container(
@@ -230,6 +231,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF3A3A3C)),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -310,7 +312,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                 context,
                 colors: colors,
                 title: 'FTP Share Server Widget',
-                sizeBadge: '3 × 2',
+                sizeBadge: 'Compact Wrap',
                 description:
                     'Displays current Wi-Fi/Hotspot FTP server URL and active connected client sessions. Tap to access FTP server controls.',
                 preview: Container(
@@ -321,6 +323,7 @@ class WidgetsGalleryScreen extends StatelessWidget {
                     border: Border.all(color: const Color(0xFF3A3A3C)),
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
