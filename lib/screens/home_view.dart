@@ -228,32 +228,21 @@ class HomeView extends StatelessWidget {
         decoration: BoxDecoration(
           color: colors.cardSurface,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: colors.primary.withOpacity(0.3), width: 1),
+          border: Border.all(color: colors.borderSubtle, width: 1),
         ),
         child: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF0078D4), Color(0xFF004E8C)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF0078D4).withOpacity(0.3),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                color: colors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(
-                Icons.enhanced_encryption_rounded,
+              child: Icon(
+                Icons.shield_outlined,
                 size: 22,
-                color: Colors.white,
+                color: colors.primary,
               ),
             ),
             const SizedBox(width: 12),

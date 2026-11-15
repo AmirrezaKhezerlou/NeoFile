@@ -7,6 +7,7 @@ import '../services/media_launcher.dart';
 import '../services/vault_service.dart';
 import '../theme/fluent_theme.dart';
 import '../widgets/fluent_file_icons.dart';
+import '../widgets/vault/fluent_media_picker.dart';
 import '../widgets/vault/vault_auth_dialog.dart';
 
 class VaultScreen extends StatefulWidget {
@@ -168,121 +169,271 @@ class _VaultScreenState extends State<VaultScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _importFilesFlow() async {
-    // Pick files using FilePicker or allow browsing from NeoFile storage
     final colors = FluentColors.of(context);
-    // Ask user to pick from device
-    final extDir = Directory('/storage/emulated/0');
-    if (!await extDir.exists()) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Storage not accessible')),
-        );
-      }
-      return;
-    }
-
-    // Show category / folder target
-    String? targetCategory;
-    if (!mounted) return;
-    if (_isAtRoot) {
-      targetCategory = await showDialog<String>(
-        context: context,
-        builder: (ctx) => SimpleDialog(
-          backgroundColor: colors.cardSurface,
-          title: Text('Select Category', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.textPrimary)),
-          children: VaultService.defaultCategories.map((cat) {
-            return SimpleDialogOption(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              onPressed: () => Navigator.pop(ctx, cat),
-              child: Row(
-                children: [
-                  Icon(
-                    cat == 'Images' ? Icons.image_outlined : (cat == 'Videos' ? Icons.videocam_outlined : Icons.insert_drive_file_outlined),
-                    size: 20,
-                    color: colors.primary,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(cat, style: TextStyle(fontSize: 14, color: colors.textPrimary)),
-                ],
-              ),
-            );
-          }).toList(),
-        ),
-      );
-      if (targetCategory == null) return;
-    }
-
-    // Launch picker or NeoFile file selection
-    if (!mounted) return;
-    _showStoragePickerAndImport(targetCategory);
+    _showVaultAddTypeBottomSheet(colors);
   }
 
-  void _showStoragePickerAndImport(String? category) {
-    // Let user browse storage and pick items to import into Vault
+  void _showVaultAddTypeBottomSheet(FluentColors colors) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.only(top: 8, bottom: 20),
+        decoration: BoxDecoration(
+          color: colors.cardSurface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: colors.borderSubtle,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: colors.primary.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.add_moderator_rounded, size: 20, color: colors.primary),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Add to File Vault',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: colors.textPrimary),
+                          ),
+                          Text(
+                            'Select how you want to pick files to encrypt',
+                            style: TextStyle(fontSize: 11.5, color: colors.textMuted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Divider(height: 1, color: colors.borderSubtle),
+              const SizedBox(height: 8),
+
+              // 1. Photos & Images Grid Picker
+              _buildAddTypeTile(
+                colors: colors,
+                icon: Icons.photo_library_outlined,
+                accentColor: const Color(0xFF0078D4),
+                title: 'Photos & Images',
+                subtitle: 'Browse gallery photos with thumbnail grid',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _openMediaPicker(VaultMediaType.images, defaultCategory: 'Images');
+                },
+              ),
+
+              // 2. Videos Grid Picker
+              _buildAddTypeTile(
+                colors: colors,
+                icon: Icons.video_library_outlined,
+                accentColor: const Color(0xFF881798),
+                title: 'Videos & Movies',
+                subtitle: 'Browse clips, movies and camera recordings',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _openMediaPicker(VaultMediaType.videos, defaultCategory: 'Videos');
+                },
+              ),
+
+              // 3. Documents Picker
+              _buildAddTypeTile(
+                colors: colors,
+                icon: Icons.description_outlined,
+                accentColor: const Color(0xFF107C41),
+                title: 'Documents & Files',
+                subtitle: 'PDFs, Word docs, text notes and archives',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _openMediaPicker(VaultMediaType.documents, defaultCategory: 'Files');
+                },
+              ),
+
+              // 4. File Explorer / Raw Picker
+              _buildAddTypeTile(
+                colors: colors,
+                icon: Icons.folder_open_outlined,
+                accentColor: const Color(0xFFD83B01),
+                title: 'Browse Folders (File Picker)',
+                subtitle: 'Navigate full device storage and pick custom files',
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showStoragePickerAndImport();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddTypeTile({
+    required FluentColors colors,
+    required IconData icon,
+    required Color accentColor,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: accentColor.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 22, color: accentColor),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.textPrimary),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 11.5, color: colors.textMuted),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, size: 18, color: colors.textMuted),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openMediaPicker(VaultMediaType mediaType, {required String defaultCategory}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => FluentMediaPicker(
+        mediaType: mediaType,
+        onImportSelected: (selectedFiles) {
+          Navigator.pop(ctx);
+          _handleImportSelected(selectedFiles, defaultCategory: defaultCategory);
+        },
+      ),
+    );
+  }
+
+  void _showStoragePickerAndImport([String? category]) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => _VaultImportPicker(
         initialPath: '/storage/emulated/0',
-        onImportSelected: (selectedFiles) async {
+        onImportSelected: (selectedFiles) {
           Navigator.pop(ctx);
-          if (selectedFiles.isEmpty) return;
-
-          setState(() => _isLoading = true);
-          String? targetSubdir;
-          if (!_isAtRoot) {
-            final rel = p.relative(_currentPath, from: _basePath);
-            final parts = p.split(rel);
-            if (parts.length > 1) {
-              targetSubdir = parts.sublist(1).join('/');
-            }
-          }
-
-          await _vault.importFiles(
-            selectedFiles,
-            targetCategory: category ?? (_isAtRoot ? 'Files' : p.split(p.relative(_currentPath, from: _basePath)).first),
-            targetSubdir: targetSubdir,
-          );
-
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${selectedFiles.length} item(s) safely moved to File Vault')),
-            );
-            await _loadCurrentDirectory();
-          }
+          _handleImportSelected(selectedFiles, defaultCategory: category ?? 'Files');
         },
       ),
     );
   }
 
-  Future<void> _exportSelectedFiles() async {
+  Future<void> _handleImportSelected(List<String> selectedFiles, {String? defaultCategory}) async {
+    if (selectedFiles.isEmpty) return;
+
+    setState(() => _isLoading = true);
+    String? targetCategory;
+    String? targetSubdir;
+
+    if (_isAtRoot) {
+      targetCategory = defaultCategory ?? 'Files';
+    } else {
+      final rel = p.relative(_currentPath, from: _basePath);
+      final parts = p.split(rel);
+      targetCategory = parts.first;
+      if (parts.length > 1) {
+        targetSubdir = parts.sublist(1).join('/');
+      }
+    }
+
+    final imported = await _vault.importFiles(
+      selectedFiles,
+      targetCategory: targetCategory,
+      targetSubdir: targetSubdir,
+    );
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${imported.length} item(s) safely moved to File Vault'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+      await _loadCurrentDirectory();
+    }
+  }
+
+  Future<void> _restoreSelectedFiles() async {
     if (_selectedPaths.isEmpty) return;
     final colors = FluentColors.of(context);
 
-    // Export to Download/NeoFile Vault Restored
-    final exportDir = Directory('/storage/emulated/0/Download/NeoFile Vault Restored');
-    if (!await exportDir.exists()) {
-      await exportDir.create(recursive: true);
-    }
-    if (!mounted) return;
-
+    final count = _selectedPaths.length;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: colors.cardSurface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        title: Text('Export to Storage', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.textPrimary)),
+        title: Row(
+          children: [
+            Icon(Icons.settings_backup_restore_rounded, color: colors.primary, size: 22),
+            const SizedBox(width: 8),
+            Text(
+              'Restore $count Item${count > 1 ? 's' : ''}',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: colors.textPrimary),
+            ),
+          ],
+        ),
         content: Text(
-          'Export ${_selectedPaths.length} item(s) to:\n${exportDir.path}\n\nFiles will be accessible from normal gallery and file managers.',
-          style: TextStyle(fontSize: 13, color: colors.textSecondary),
+          'Restore $count selected item${count > 1 ? 's' : ''} back to their original folder location?\n\nFiles will be removed from File Vault and restored to where they were originally stored, making them accessible again in your gallery and apps.',
+          style: TextStyle(fontSize: 13, color: colors.textSecondary, height: 1.4),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
-          FilledButton(
+          FilledButton.icon(
+            icon: const Icon(Icons.settings_backup_restore_rounded, size: 16),
+            label: const Text('Restore Files'),
             onPressed: () => Navigator.pop(ctx, true),
             style: FilledButton.styleFrom(backgroundColor: colors.primary),
-            child: const Text('Export'),
           ),
         ],
       ),
@@ -290,14 +441,21 @@ class _VaultScreenState extends State<VaultScreen> with WidgetsBindingObserver {
 
     if (confirm == true) {
       setState(() => _isLoading = true);
-      await _vault.exportFiles(_selectedPaths.toList(), exportDir.path);
+      final restored = await _vault.restoreFiles(_selectedPaths.toList());
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported ${_selectedPaths.length} item(s) successfully')),
+          SnackBar(
+            content: Text('${restored.length} item(s) restored to original location'),
+            duration: const Duration(seconds: 3),
+          ),
         );
         await _loadCurrentDirectory();
       }
     }
+  }
+
+  Future<void> _exportSelectedFiles() async {
+    await _restoreSelectedFiles();
   }
 
   Future<void> _deleteSelectedFiles() async {
@@ -460,11 +618,14 @@ class _VaultScreenState extends State<VaultScreen> with WidgetsBindingObserver {
                       style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.textPrimary),
                     ),
                     const Spacer(),
-                    TextButton.icon(
-                      icon: const Icon(Icons.unarchive_outlined, size: 18),
-                      label: const Text('Export'),
-                      onPressed: _exportSelectedFiles,
-                      style: TextButton.styleFrom(foregroundColor: colors.primary),
+                    FilledButton.icon(
+                      icon: const Icon(Icons.settings_backup_restore_rounded, size: 18),
+                      label: const Text('Restore'),
+                      onPressed: _restoreSelectedFiles,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     TextButton.icon(

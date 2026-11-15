@@ -18,6 +18,7 @@ class VaultService {
   static const String prefVaultSalt = 'neofile_vault_salt';
   static const String prefVaultHash = 'neofile_vault_hash';
   static const String prefVaultHint = 'neofile_vault_hint';
+  static const String metadataFileName = 'vault_metadata.json';
 
   static const List<String> defaultCategories = ['Images', 'Videos', 'Files'];
 
@@ -190,6 +191,31 @@ class VaultService {
     return 'Files';
   }
 
+  Future<File> _getMetadataFile() async {
+    final basePath = await getVaultBasePath();
+    return File(p.join(basePath, metadataFileName));
+  }
+
+  Future<Map<String, String>> _loadMetadata() async {
+    try {
+      final file = await _getMetadataFile();
+      if (!await file.exists()) return {};
+      final content = await file.readAsString();
+      if (content.trim().isEmpty) return {};
+      final map = jsonDecode(content) as Map<String, dynamic>;
+      return map.map((k, v) => MapEntry(k, v.toString()));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _saveMetadata(Map<String, String> meta) async {
+    try {
+      final file = await _getMetadataFile();
+      await file.writeAsString(jsonEncode(meta));
+    } catch (_) {}
+  }
+
   Future<List<String>> importFiles(
     List<String> sourcePaths, {
     String? targetCategory,
@@ -198,6 +224,7 @@ class VaultService {
     await ensureVaultStorageInitialized();
     final basePath = await getVaultBasePath();
     final importedPaths = <String>[];
+    final meta = await _loadMetadata();
 
     for (final src in sourcePaths) {
       final entity = FileSystemEntity.typeSync(src);
@@ -231,9 +258,12 @@ class VaultService {
         await _moveFile(File(src), File(destPath));
       }
 
+      final relPath = p.relative(destPath, from: basePath).replaceAll('\\', '/');
+      meta[relPath] = src;
       importedPaths.add(destPath);
     }
 
+    await _saveMetadata(meta);
     return importedPaths;
   }
 
@@ -272,35 +302,68 @@ class VaultService {
     }
   }
 
-  Future<List<String>> exportFiles(List<String> vaultPaths, String destinationDir) async {
-    final destDir = Directory(destinationDir);
-    if (!await destDir.exists()) {
-      await destDir.create(recursive: true);
-    }
+  Future<String?> getOriginalPath(String vaultPath) async {
+    final basePath = await getVaultBasePath();
+    final relPath = p.relative(vaultPath, from: basePath).replaceAll('\\', '/');
+    final meta = await _loadMetadata();
+    return meta[relPath];
+  }
 
-    final exportedPaths = <String>[];
-    for (final path in vaultPaths) {
-      final entity = FileSystemEntity.typeSync(path);
+  Future<List<String>> restoreFiles(List<String> vaultPaths, {String? fallbackDir}) async {
+    await ensureVaultStorageInitialized();
+    final basePath = await getVaultBasePath();
+    final meta = await _loadMetadata();
+    final restoredPaths = <String>[];
+    final defaultFallback = fallbackDir ?? '/storage/emulated/0/Download/NeoFile Vault Restored';
+
+    for (final vaultPath in vaultPaths) {
+      final entity = FileSystemEntity.typeSync(vaultPath);
       if (entity == FileSystemEntityType.notFound) continue;
 
-      final name = p.basename(path);
-      String destPath = p.join(destinationDir, name);
+      final relPath = p.relative(vaultPath, from: basePath).replaceAll('\\', '/');
+      final originalPath = meta[relPath];
+
+      String targetDir;
+      String targetFileName;
+
+      if (originalPath != null && originalPath.isNotEmpty) {
+        targetDir = p.dirname(originalPath);
+        targetFileName = p.basename(originalPath);
+      } else {
+        targetDir = defaultFallback;
+        targetFileName = p.basename(vaultPath);
+      }
+
+      final dir = Directory(targetDir);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+
+      String destPath = p.join(targetDir, targetFileName);
       int counter = 1;
-      final nameWithoutExt = p.basenameWithoutExtension(name);
-      final ext = p.extension(name);
+      final nameWithoutExt = p.basenameWithoutExtension(targetFileName);
+      final ext = p.extension(targetFileName);
       while (await FileSystemEntity.type(destPath) != FileSystemEntityType.notFound) {
-        destPath = p.join(destinationDir, '$nameWithoutExt ($counter)$ext');
+        destPath = p.join(targetDir, '$nameWithoutExt ($counter)$ext');
         counter++;
       }
 
       if (entity == FileSystemEntityType.directory) {
-        await _moveDirectory(Directory(path), Directory(destPath));
+        await _moveDirectory(Directory(vaultPath), Directory(destPath));
       } else {
-        await _moveFile(File(path), File(destPath));
+        await _moveFile(File(vaultPath), File(destPath));
       }
-      exportedPaths.add(destPath);
+
+      meta.remove(relPath);
+      restoredPaths.add(destPath);
     }
-    return exportedPaths;
+
+    await _saveMetadata(meta);
+    return restoredPaths;
+  }
+
+  Future<List<String>> exportFiles(List<String> vaultPaths, String destinationDir) async {
+    return restoreFiles(vaultPaths, fallbackDir: destinationDir);
   }
 
   Future<int> getTotalVaultSize() async {
@@ -313,7 +376,7 @@ class VaultService {
       await for (final entity in dir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
           final name = p.basename(entity.path);
-          if (name != '.nomedia') {
+          if (name != '.nomedia' && name != metadataFileName) {
             try {
               total += await entity.length();
             } catch (_) {}
@@ -336,7 +399,7 @@ class VaultService {
       await for (final entity in dir.list(recursive: true, followLinks: false)) {
         if (entity is File) {
           final name = p.basename(entity.path);
-          if (name != '.nomedia') {
+          if (name != '.nomedia' && name != metadataFileName) {
             count++;
           }
         }
@@ -359,14 +422,28 @@ class VaultService {
   }
 
   Future<void> deleteVaultItems(List<String> paths) async {
+    final basePath = await getVaultBasePath();
+    final meta = await _loadMetadata();
+    bool metaChanged = false;
+
     for (final path in paths) {
       try {
+        final rel = p.relative(path, from: basePath).replaceAll('\\', '/');
+        if (meta.containsKey(rel)) {
+          meta.remove(rel);
+          metaChanged = true;
+        }
+
         if (await FileSystemEntity.isDirectory(path)) {
           await Directory(path).delete(recursive: true);
         } else {
           await File(path).delete();
         }
       } catch (_) {}
+    }
+
+    if (metaChanged) {
+      await _saveMetadata(meta);
     }
   }
 }

@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:neofile/models/file_item.dart';
 import 'package:neofile/models/recycle_bin_item.dart';
 import 'package:neofile/providers/settings_provider.dart';
 import 'package:neofile/services/recycle_bin_service.dart';
 import 'package:neofile/services/vault_service.dart';
 import 'package:neofile/widgets/fluent_delete_dialog.dart';
+import 'package:neofile/widgets/vault/fluent_media_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -62,6 +65,47 @@ void main() {
       expect(VaultService.detectCategory('/path/document.pdf'), 'Files');
       expect(VaultService.detectCategory('/path/notes.txt'), 'Files');
       expect(VaultService.detectCategory('/path/archive.zip'), 'Files');
+    });
+
+    test('importFiles records metadata and restoreFiles restores to original path', () async {
+      final tempDir = Directory.systemTemp.createTempSync('vault_test_');
+      final vaultDir = Directory.systemTemp.createTempSync('vault_storage_');
+      final vault = VaultService.instance;
+      vault.setCustomBasePathForTesting(vaultDir.path);
+
+      try {
+        final originalFile = File(p.join(tempDir.path, 'secret_doc.pdf'));
+        await originalFile.writeAsString('Confidential data');
+        final originalPath = originalFile.path;
+
+        // Import into vault
+        final imported = await vault.importFiles([originalPath]);
+        expect(imported.length, 1);
+        expect(await originalFile.exists(), false);
+        expect(await File(imported.first).exists(), true);
+
+        // Check original path mapping
+        final trackedOriginal = await vault.getOriginalPath(imported.first);
+        expect(trackedOriginal != null && p.normalize(trackedOriginal) == p.normalize(originalPath), true);
+
+        // Restore back
+        final restored = await vault.restoreFiles([imported.first]);
+        expect(restored.length, 1);
+        expect(p.normalize(restored.first), p.normalize(originalPath));
+        expect(await File(originalPath).exists(), true);
+        expect(await File(originalPath).readAsString(), 'Confidential data');
+        expect(await File(imported.first).exists(), false);
+
+        // Metadata cleaned up
+        final afterRestoreTracked = await vault.getOriginalPath(imported.first);
+        expect(afterRestoreTracked, null);
+      } finally {
+        vault.setCustomBasePathForTesting(null);
+        try {
+          tempDir.deleteSync(recursive: true);
+          vaultDir.deleteSync(recursive: true);
+        } catch (_) {}
+      }
     });
   });
 
@@ -238,6 +282,54 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(result, DeleteAction.permanent);
+    });
+  });
+
+  group('FluentMediaPicker Widget Tests', () {
+    testWidgets('FluentMediaPicker renders items and selects files', (tester) async {
+      final docItem = FileItem(
+        path: '/storage/emulated/0/Download/document.pdf',
+        name: 'document.pdf',
+        isDirectory: false,
+        size: 2048,
+        modified: DateTime.now(),
+        isHidden: false,
+        extension: 'pdf',
+      );
+
+      List<String>? chosenFiles;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: FluentMediaPicker(
+              mediaType: VaultMediaType.documents,
+              initialFiles: [docItem],
+              onImportSelected: (files) {
+                chosenFiles = files;
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Select Documents & Files'), findsOneWidget);
+      expect(find.textContaining('1 item found'), findsOneWidget);
+
+      // Tap on document item to select it
+      await tester.tap(find.text('document.pdf'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('1 item selected'), findsOneWidget);
+
+      // Tap Import button
+      await tester.tap(find.text('Import (1)'));
+      await tester.pumpAndSettle();
+
+      expect(chosenFiles, isNotNull);
+      expect(chosenFiles!.length, 1);
+      expect(chosenFiles!.first, docItem.path);
     });
   });
 }

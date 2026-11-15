@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'file_service.dart';
@@ -149,6 +150,8 @@ class StorageAnalyzerService with ChangeNotifier {
   String _currentScanningPath = '';
   int _scannedFilesCount = 0;
   StorageAnalysisSnapshot? _lastSnapshot;
+  Isolate? _scanIsolate;
+  ReceivePort? _receivePort;
 
   bool get isScanning => _isScanning;
   double get scanProgress => _scanProgress;
@@ -199,10 +202,17 @@ class StorageAnalyzerService with ChangeNotifier {
   void cancelScan() {
     _isCancelled = true;
     _isScanning = false;
+    _scanIsolate?.kill(priority: Isolate.immediate);
+    _scanIsolate = null;
+    _receivePort?.close();
+    _receivePort = null;
     notifyListeners();
   }
 
-  Future<StorageAnalysisSnapshot?> startAnalysis({bool forceRefresh = false}) async {
+  Future<StorageAnalysisSnapshot?> startAnalysis({
+    bool forceRefresh = false,
+    String? customScanPath,
+  }) async {
     if (_isScanning) return _lastSnapshot;
     if (!forceRefresh && _lastSnapshot != null) return _lastSnapshot;
 
@@ -230,115 +240,67 @@ class StorageAnalyzerService with ChangeNotifier {
       freeStorage = 20 * 1024 * 1024 * 1024;
     }
 
-    final usedStorage = totalStorage > freeStorage ? totalStorage - freeStorage : 0;
-
-    final categoryMap = <StorageCategory, StorageCategoryData>{
-      for (final cat in StorageCategory.values)
-        cat: StorageCategoryData(category: cat),
-    };
-    final largeFilesList = <StorageAnalyzedFile>[];
-
-    final rootDir = Directory(FileService.internalStoragePath);
+    final targetPath = customScanPath ?? FileService.internalStoragePath;
+    final rootDir = Directory(targetPath);
     if (!rootDir.existsSync()) {
       _isScanning = false;
       notifyListeners();
       return null;
     }
 
-    // 2. Traversal queue
-    final queue = <Directory>[rootDir];
-    int analyzedBytes = 0;
-    int processedCount = 0;
+    final receivePort = ReceivePort();
+    _receivePort = receivePort;
+    final completer = Completer<StorageAnalysisSnapshot?>();
 
-    while (queue.isNotEmpty && !_isCancelled) {
-      final currentDir = queue.removeAt(0);
-      _currentScanningPath = p.basename(currentDir.path);
+    final params = _ScanWorkerParams(
+      sendPort: receivePort.sendPort,
+      rootPath: targetPath,
+      totalStorage: totalStorage,
+      freeStorage: freeStorage,
+      largeFileThreshold: largeFileThreshold,
+    );
 
-      try {
-        final entities = currentDir.listSync(followLinks: false);
-        for (final entity in entities) {
-          if (_isCancelled) break;
-
-          final entityName = p.basename(entity.path);
-          if (entityName.startsWith('.')) continue;
-
-          if (entity is Directory) {
-            // Skip Android system internal data/obb to avoid slow unauthorized access
-            final norm = p.normalize(entity.path);
-            if (norm.endsWith('/Android/data') || norm.endsWith('/Android/obb')) {
-              continue;
-            }
-            queue.add(entity);
-          } else if (entity is File) {
-            processedCount++;
-            _scannedFilesCount = processedCount;
-
-            try {
-              final stat = entity.statSync();
-              final size = stat.size;
-              final ext = p.extension(entity.path);
-              final category = classifyExtension(ext);
-
-              final analyzedFile = StorageAnalyzedFile(
-                path: entity.path,
-                name: entityName,
-                size: size,
-                modified: stat.modified,
-                category: category,
-                extension: ext,
-              );
-
-              categoryMap[category]!.files.add(analyzedFile);
-              categoryMap[category]!.totalBytes += size;
-              categoryMap[category]!.fileCount++;
-              analyzedBytes += size;
-
-              if (size >= largeFileThreshold) {
-                largeFilesList.add(analyzedFile);
-              }
-            } catch (_) {}
-
-            if (processedCount % 300 == 0) {
-              _scanProgress = (processedCount / (processedCount + queue.length * 15)).clamp(0.05, 0.95);
-              notifyListeners();
-              await Future.delayed(Duration.zero);
-            }
-          }
-        }
-      } catch (_) {
-        // Skip inaccessible subfolders
-      }
-    }
-
-    if (_isCancelled) {
+    try {
+      _scanIsolate = await Isolate.spawn(_scanWorkerEntry, params);
+    } catch (_) {
+      // Fallback in environments where Isolate.spawn is restricted
       _isScanning = false;
       notifyListeners();
       return null;
     }
 
-    // Sort files by size descending by default in each category
-    for (final catData in categoryMap.values) {
-      catData.files.sort((a, b) => b.size.compareTo(a.size));
-    }
-    largeFilesList.sort((a, b) => b.size.compareTo(a.size));
+    receivePort.listen((message) {
+      if (_isCancelled) return;
+      if (message is Map<String, dynamic>) {
+        final type = message['type'];
+        if (type == 'progress') {
+          _scannedFilesCount = message['count'] as int;
+          _currentScanningPath = message['path'] as String;
+          _scanProgress = (message['progress'] as num).toDouble();
+          notifyListeners();
+        } else if (type == 'done') {
+          _lastSnapshot = message['snapshot'] as StorageAnalysisSnapshot;
+          _isScanning = false;
+          _scanProgress = 1.0;
+          _currentScanningPath = 'Analysis complete';
+          _receivePort?.close();
+          _receivePort = null;
+          _scanIsolate = null;
+          notifyListeners();
+          if (!completer.isCompleted) {
+            completer.complete(_lastSnapshot);
+          }
+        }
+      }
+    }, onDone: () {
+      if (!completer.isCompleted) {
+        _isScanning = false;
+        notifyListeners();
+        completer.complete(_lastSnapshot);
+      }
+    });
 
-    final snapshot = StorageAnalysisSnapshot(
-      totalStorageBytes: totalStorage,
-      usedStorageBytes: usedStorage,
-      freeStorageBytes: freeStorage,
-      totalAnalyzedBytes: analyzedBytes,
-      totalAnalyzedFiles: processedCount,
-      categories: categoryMap,
-      largeFiles: largeFilesList,
-    );
-
-    _lastSnapshot = snapshot;
-    _isScanning = false;
-    _scanProgress = 1.0;
-    _currentScanningPath = 'Analysis complete';
-    notifyListeners();
-
-    return snapshot;
+    return completer.future;
   }
 
   /// Deletes given files from storage and updates the active snapshot in real time.
@@ -382,4 +344,128 @@ class StorageAnalyzerService with ChangeNotifier {
 
     return false;
   }
+}
+
+class _ScanWorkerParams {
+  final SendPort sendPort;
+  final String rootPath;
+  final int totalStorage;
+  final int freeStorage;
+  final int largeFileThreshold;
+
+  _ScanWorkerParams({
+    required this.sendPort,
+    required this.rootPath,
+    required this.totalStorage,
+    required this.freeStorage,
+    required this.largeFileThreshold,
+  });
+}
+
+void _scanWorkerEntry(_ScanWorkerParams params) {
+  final usedStorage = params.totalStorage > params.freeStorage
+      ? params.totalStorage - params.freeStorage
+      : 0;
+
+  final categoryMap = <StorageCategory, StorageCategoryData>{
+    for (final cat in StorageCategory.values)
+      cat: StorageCategoryData(category: cat),
+  };
+  final largeFilesList = <StorageAnalyzedFile>[];
+
+  final rootDir = Directory(params.rootPath);
+  if (!rootDir.existsSync()) {
+    final emptySnapshot = StorageAnalysisSnapshot(
+      totalStorageBytes: params.totalStorage,
+      usedStorageBytes: usedStorage,
+      freeStorageBytes: params.freeStorage,
+      categories: categoryMap,
+      largeFiles: largeFilesList,
+    );
+    params.sendPort.send({'type': 'done', 'snapshot': emptySnapshot});
+    return;
+  }
+
+  final queue = <Directory>[rootDir];
+  int analyzedBytes = 0;
+  int processedCount = 0;
+  DateTime lastUpdateTime = DateTime.now();
+
+  while (queue.isNotEmpty) {
+    final currentDir = queue.removeAt(0);
+    final dirName = p.basename(currentDir.path);
+
+    try {
+      final entities = currentDir.listSync(followLinks: false);
+      for (final entity in entities) {
+        final entityName = p.basename(entity.path);
+        if (entityName.startsWith('.')) continue;
+
+        if (entity is Directory) {
+          final norm = p.normalize(entity.path).replaceAll('\\', '/');
+          if (norm.endsWith('/Android/data') || norm.endsWith('/Android/obb')) {
+            continue;
+          }
+          queue.add(entity);
+        } else if (entity is File) {
+          processedCount++;
+
+          try {
+            final stat = entity.statSync();
+            final size = stat.size;
+            final ext = p.extension(entity.path);
+            final category = StorageAnalyzerService.classifyExtension(ext);
+
+            final analyzedFile = StorageAnalyzedFile(
+              path: entity.path,
+              name: entityName,
+              size: size,
+              modified: stat.modified,
+              category: category,
+              extension: ext,
+            );
+
+            categoryMap[category]!.files.add(analyzedFile);
+            categoryMap[category]!.totalBytes += size;
+            categoryMap[category]!.fileCount++;
+            analyzedBytes += size;
+
+            if (size >= params.largeFileThreshold) {
+              largeFilesList.add(analyzedFile);
+            }
+          } catch (_) {}
+
+          final now = DateTime.now();
+          if (now.difference(lastUpdateTime).inMilliseconds >= 120) {
+            lastUpdateTime = now;
+            final progress = (processedCount / (processedCount + queue.length * 15)).clamp(0.05, 0.95);
+            params.sendPort.send({
+              'type': 'progress',
+              'count': processedCount,
+              'path': dirName,
+              'progress': progress,
+            });
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Sort files by size descending
+  for (final catData in categoryMap.values) {
+    catData.files.sort((a, b) => b.size.compareTo(a.size));
+  }
+  largeFilesList.sort((a, b) => b.size.compareTo(a.size));
+
+  final snapshot = StorageAnalysisSnapshot(
+    totalStorageBytes: params.totalStorage,
+    usedStorageBytes: usedStorage,
+    freeStorageBytes: params.freeStorage,
+    totalAnalyzedBytes: analyzedBytes,
+    totalAnalyzedFiles: processedCount,
+    categories: categoryMap,
+    largeFiles: largeFilesList,
+  );
+
+  params.sendPort.send({'type': 'done', 'snapshot': snapshot});
 }
